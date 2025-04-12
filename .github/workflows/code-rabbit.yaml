@@ -9,7 +9,6 @@ on:
     types: [opened]  # 初回PR時に自動レビューを実施
     branches-ignore:
       - master
-      - main
   pull_request_review_comment:
     types: [created]
   issue_comment:
