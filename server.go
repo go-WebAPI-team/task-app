@@ -5,7 +5,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -35,7 +34,7 @@ func (s *Server) Run(ctx context.Context) error {
 		}
 		return nil
 	})
-	
+
 	// チャネルからの通知（終了通知）を待機する
 	<-ctx.Done()
 	if err := s.srv.Shutdown(context.Background()); err != nil {
