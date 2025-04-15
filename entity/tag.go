@@ -3,13 +3,12 @@ package entity
 import "time"
 
 type TagID int64
-type TagName string
 type UserID int64
 
 type Tag struct {
-	ID      TaskID     `json:"id"`
-	Name   	string     `json:"name"`
-	UserID  UserID 	   `json:"userid" `
+	ID      TagID      `json:"id"`
+	TagName string     `json:"name"`
+	UserID  UserID 	   `json:"user_id" `
 	Created time.Time  `json:"created"`
 }
 
