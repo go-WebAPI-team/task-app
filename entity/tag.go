@@ -8,7 +8,7 @@ type UserID int64
 type Tag struct {
 	ID      TagID      `json:"id"`
 	Name    string     `json:"name"`
-	UserID  UserID 	   `json:"user_id" `
+	UserID  UserID 	   `json:"user_id"`
 	Created time.Time  `json:"created"`
 }
 
