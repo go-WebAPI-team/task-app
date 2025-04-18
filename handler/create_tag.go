@@ -18,7 +18,7 @@ type CreateTag struct {
 func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var b struct {
-		TagName string `json:"name" validate:"required"`
+		Name string `json:"name" validate:"required"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
 		RespondJSON(ctx, w, &ErrResponse{
@@ -34,7 +34,7 @@ func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	t := &entity.Tag{
-		TagName:      b.TagName,
+		Name:      b.Name,
 		UserID:    1, // TODO: ユーザIDを取得する
 		Created:  time.Now(),
 	}
