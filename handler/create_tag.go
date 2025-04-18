@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
-	"github.com/playground/validator/v10"
+	"github.com/go-playground/validator/v10"
 )
 
 type CreateTag struct {
