@@ -23,8 +23,8 @@ func (ts *TagStore) Create(t *entity.Tag) (*entity.TagID, error) {
 	return &t.ID, nil
 }
 
-func (ts *TagStore) Get(id) (*entity.TagID) (*entity.Tag, error) {
-	if t, ok := ts.Tags[*id]; ok {
+func (ts *TagStore) Get(id entity.TagID) (*entity.Tag, error) {
+	if t, ok := ts.Tags[id]; ok {
 		return t, nil
 	}
 	return nil, ErrNotFound

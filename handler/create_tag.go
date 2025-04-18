@@ -38,7 +38,7 @@ func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		UserID:    1, // TODO: ユーザIDを取得する
 		Created:  time.Now(),
 	}
-	id,err := ct.Store.Create(t)
+	idPtr,err := ct.Store.Create(t)
 	if err != nil {
 		RespondJSON(ctx, w, &ErrResponse{
 			Message: err.Error(),
@@ -48,7 +48,7 @@ func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rsp := struct {
 		ID int `json:"id"`
 	}{
-		ID: int(id)
+		ID: int(*idPtr),
 	}
 	RespondJSON(ctx, w, rsp, http.StatusOK)
 
