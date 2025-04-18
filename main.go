@@ -7,7 +7,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/go-WebAPI-team/task-app/config"
+	"github.com/go-webapi-team/task-app/config"
 )
 
 // run(ctx context.Context) errorに処理を委譲

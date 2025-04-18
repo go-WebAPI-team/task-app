@@ -3,7 +3,7 @@ package store
 import (
 	"errors"
 
-	"github.com/go-WebAPI-team/task-app/entity"
+	"github.com/go-webapi-team/task-app/entity"
 )
 
 var (

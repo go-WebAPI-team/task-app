@@ -1,4 +1,4 @@
-module github.com/go-WebAPI-team/task-app
+module github.com/go-webapi-team/task-app
 
 go 1.23.0
 
