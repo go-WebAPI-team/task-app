@@ -1,0 +1,13 @@
+[mysqld]
+# 文字コード系
+character-set-server = utf8mb4
+collation-server     = utf8mb4_bin
+
+# タイムゾーンを JST (+09:00) に固定
+default_time_zone = '+09:00'
+
+# SQL モード厳格化
+sql_mode = TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY
+
+# 認証プラグインをレガシー互換にする（8.0 既定は caching_sha2 だが、Go ドライバ互換を優先）
+default_authentication_plugin = mysql_native_password
