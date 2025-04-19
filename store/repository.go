@@ -1,4 +1,3 @@
-// store/repository.go
 package store
 
 import (
@@ -8,7 +7,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // ドライバの side‑effect import
-	"github.com/your-module/config"    // 先ほど作成した package
+	"github.com/your-module/config"   
 )
 
 const (
