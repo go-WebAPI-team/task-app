@@ -19,7 +19,7 @@ func main() {
 }
 
 func run(ctx context.Context) error {
-	cfg, err := config.New()
+	cfg, _, err := config.New()
 	if err != nil {
 		return err
 	}

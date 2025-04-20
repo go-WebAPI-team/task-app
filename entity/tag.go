@@ -9,7 +9,8 @@ type Tag struct {
 	ID      TagID      `json:"id"`
 	Name    string     `json:"name"`
 	UserID  UserID 	   `json:"user_id"`
-	Created time.Time  `json:"created"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 type Tags []*Tag

@@ -15,8 +15,8 @@ type ListTag struct {
 type Tag struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
-	// Created *は要件があるときだけ追加*
-    Created *time.Time `json:"created,omitempty"`
+	// CreatedAt *は要件があるときだけ追加*
+    CreatedAt *time.Time `json:"created,omitempty"`
 }
 
 func (lt *ListTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -25,13 +25,13 @@ func (lt *ListTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rsp := make([]Tag, 0) // 要素 0 だが non‑nil → JSON では [] になる
 	for _, t := range tags {
 		var created *time.Time
-		if !t.Created.IsZero() { // ← 作成済みの値だけポインタを立てる
-			created = &t.Created
+		if !t.CreatedAt.IsZero() { // ← 作成済みの値だけポインタを立てる
+			created = &t.CreatedAt
 		}
 		rsp = append(rsp, Tag{
 			ID:   int(t.ID),
 			Name: t.Name,
-			Created: created,
+			CreatedAt: created,
 		})
 	}
 	RespondJSON(ctx, w, rsp, http.StatusOK)

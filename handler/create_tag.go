@@ -36,7 +36,7 @@ func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t := &entity.Tag{
 		Name:      b.Name,
 		UserID:    1, // TODO: ユーザIDを取得する
-		Created:  time.Now(),
+		CreatedAt:  time.Now(),
 	}
 	idPtr,err := ct.Store.Create(t)
 	if err != nil {
