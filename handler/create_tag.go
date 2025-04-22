@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -10,13 +11,20 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// ユースケース単位のインタフェース
+type TagCreator interface {
+	CreateTag(ctx context.Context, db store.Execer, t *entity.Tag) error
+}
+
 type CreateTag struct {
-	Store *store.TagStore
+	Repo TagCreator
+	DB store.Execer
 	Validator *validator.Validate
 }
 
 func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+
 	var b struct {
 		Name string `json:"name" validate:"required"`
 	}
@@ -26,30 +34,28 @@ func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}, http.StatusInternalServerError)
 		return
 	}
-	err := validator.New().Struct(b)
-	if err != nil {
+	if err := ct.Validator.Struct(b); err != nil {
 		RespondJSON(ctx, w, &ErrResponse{
 			Message: err.Error(),
 		}, http.StatusBadRequest)
 		return
 	}
+	now := time.Now()
 	t := &entity.Tag{
 		Name:      b.Name,
-		UserID:    1, // TODO: ユーザIDを取得する
-		CreatedAt:  time.Now(),
+		UserID:    1, // TODO: 認証実装後にユーザIDを取得する
+		CreatedAt:  now,
+		UpdatedAt: now,
 	}
-	idPtr,err := ct.Store.Create(t)
-	if err != nil {
+
+	if err := ct.Repo.CreateTag(ctx, ct.DB, t); err !=  nil {
 		RespondJSON(ctx, w, &ErrResponse{
 			Message: err.Error(),
 		}, http.StatusInternalServerError)
 		return
 	}
-	rsp := struct {
-		ID int `json:"id"`
-	}{
-		ID: int(*idPtr),
-	}
+	// t.ID に自動設定される ※CreateTag が LastInsertId をセット
+    rsp := struct{ ID int `json:"id"` }{ID: int(t.ID)}
 	RespondJSON(ctx, w, rsp, http.StatusOK)
 
 }

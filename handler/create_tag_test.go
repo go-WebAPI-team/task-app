@@ -1,6 +1,7 @@
 package handler
 
 import (
+    "context"
     "bytes"
     "net/http"
     "net/http/httptest"
@@ -13,6 +14,15 @@ import (
 
     "github.com/budougumi0617/go_todo_app/testutil"
 )
+
+// fakeCreator は Repository.CreateTag のモック実装
+type fakeCreator struct{ nextID int64 }
+
+func (f *fakeCreator) CreateTag(_ context.Context, _ store.Execer, t *entity.Tag) error {
+	f.nextID++
+	t.ID = entity.TagID(f.nextID)
+	return nil
+}
 
 func TestCreateTag(t *testing.T) {
     type want struct {
@@ -54,9 +64,8 @@ func TestCreateTag(t *testing.T) {
 
             // テスト対象となるハンドラ(CreateTag)の用意
             sut := CreateTag{
-                Store: &store.TagStore{
-                    Tags: map[entity.TagID]*entity.Tag{},
-                },
+                Repo: &fakeCreator{},     // モックリポジトリ
+                DB: nil,               // db 引数はモックで使わないので nil OK
                 Validator: validator.New(),
             }
 

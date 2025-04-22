@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,22 +11,28 @@ import (
 	"github.com/go-webapi-team/task-app/testutil"
 )
 
+type fakeLister struct{ ret entity.Tags }
+
+func (f *fakeLister) ListTags(_ context.Context, _ store.Queryer) (entity.Tags, error) {
+	return f.ret, nil
+}
+
 func TestListTag(t *testing.T) {
 	type want struct {
 		status  int
 		rspFile string
 	}
 	tests := map[string]struct {
-		tags map[entity.TagID]*entity.Tag
+		tags entity.Tags
 		want want
 	}{
 		"ok": {
-			tags: map[entity.TagID]*entity.Tag{
-				1: {
+			tags: entity.Tags{
+				{
 					ID:   1,
 					Name: "tag1",
 				},
-				2: {
+				{
 					ID:   2,
 					Name: "tag2",
 				},
@@ -37,7 +44,7 @@ func TestListTag(t *testing.T) {
 			},
 		},
 		"empty": {
-			tags: map[entity.TagID]*entity.Tag{},
+			tags: entity.Tags{},
 			want: want{
 				status:  http.StatusOK,
 				rspFile: "testdata/list_tag/empty_rsp.json.golden",
@@ -59,9 +66,8 @@ func TestListTag(t *testing.T) {
 
 			// テスト対象となるハンドラ(ListTag)の用意
 			sut := ListTag{
-				Store: &store.TagStore{
-					Tags: tt.tags,
-				},
+				Repo: &fakeLister{ret: tt.tags},
+				DB:   nil,
 			}
 
 			// リクエストをハンドラに渡す

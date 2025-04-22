@@ -7,7 +7,9 @@ import (
 	"net"
 	"os"
 
+	"github.com/go-webapi-team/task-app/clock"
 	"github.com/go-webapi-team/task-app/config"
+	"github.com/go-webapi-team/task-app/store"
 )
 
 // run(ctx context.Context) errorに処理を委譲
@@ -23,6 +25,17 @@ func run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	// DB接続をここで作る
+    db, cleanup, err := store.New(ctx, cfg)
+    if err != nil { return err }
+    defer cleanup()             // ← アプリ終了時に Close
+
+    repo := &store.Repository{Clocker: clock.RealClocker{}}
+
+	mux := NewMux(db, repo)
+
+
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
 	if err != nil {
 		log.Fatalf("failed to listen port %d: %v", cfg.Port, err)
@@ -30,7 +43,6 @@ func run(ctx context.Context) error {
 	url := fmt.Sprintf("http://%s", l.Addr().String())
 	log.Printf("start with: %v", url)
 
-	mux := NewMux()
 	s := NewServer(l, mux)
 	
 	return s.Run(ctx)
