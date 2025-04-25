@@ -17,18 +17,37 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 	v := validator.New()
 
 	// RDB 永続化版ハンドラ
-	ct := &handler.CreateTag{
+	createTag := &handler.CreateTag{
 		Repo:      repo,
 		DB:        db,
 		Validator: v,
 	}
-	mux.Post("/tags", ct.ServeHTTP)
+	mux.Post("/tags", createTag.ServeHTTP)
 
 	lt := &handler.ListTag{
 		Repo: repo,
 		DB:   db,
 	}
 	mux.Get("/tags", lt.ServeHTTP)
+
+	// Task ハンドラ
+	at := &handler.AddTask{Repo: repo, DB: db, Validator: v}
+	mux.Post("/tasks", at.ServeHTTP)
+
+	ltask := &handler.ListTask{Repo: repo, DB: db}
+	mux.Get("/tasks", ltask.ServeHTTP)
+
+	gt := &handler.GetTask{Repo: repo, DB: db}
+	mux.Get("/tasks/{id}", gt.ServeHTTP)
+
+	ut := &handler.UpdateTask{Repo: repo, DB: db, Validator: v}
+	mux.Put("/tasks/{id}", ut.ServeHTTP)
+
+	dt := &handler.DeleteTask{Repo: repo, DB: db}
+	mux.Delete("/tasks/{id}", dt.ServeHTTP)
+
+	toggleComplete := &handler.ToggleCompleteTask{Repo: repo, DB: db}
+	mux.Patch("/tasks/{id}/complete", toggleComplete.ServeHTTP)
 
 	// 常に使うヘルスチェック
     mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

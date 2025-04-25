@@ -51,3 +51,13 @@ func LoadFile(t *testing.T, path string) []byte {
 	}
 	return bt
 }
+
+// MustJSON marshals v -> []byte. テスト失敗時は t.Fatalf で即終了するユーティリティ。
+func MustJSON(t *testing.T, v any) []byte {
+	t.Helper()
+	b, err := json.Marshal(v)
+	if err != nil {
+		t.Fatalf("cannot marshal %#v to JSON: %v", v, err)
+	}
+	return b
+}
