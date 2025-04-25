@@ -28,7 +28,7 @@ func (ut *UpdateTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	idInt, err := strconv.ParseInt(idStr, 10, 64) //10進数として解釈し、int64 に収める(DBのPK がBIGINT(64bit) のため)
 	if err != nil {
-		RespondJSON(ctx, w, &ErrResponse{Message: "invalid id"}, http.StatusBadRequest)
+		RespondJSON(ctx, w, &ErrResponse{Message: "invalid task ID format"}, http.StatusBadRequest)
 		return
 	}
 

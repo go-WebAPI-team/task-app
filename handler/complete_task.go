@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"net/http"
+	"errors"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -29,7 +30,11 @@ func (tc *ToggleCompleteTask) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	}
 	// TODO: 認証機能実装後にログインユーザーの ID を ctx から取得する
 	if err := tc.Repo.ToggleTaskDone(ctx, tc.DB, 1, entity.TaskID(idInt)); err != nil {
-		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
+		if errors.Is(err, store.ErrTaskNotFound) {
+			RespondJSON(ctx, w, &ErrResponse{Message: "Task not found"}, http.StatusNotFound)
+		} else {
+			RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
+		}
 		return
 	}
 	w.WriteHeader(http.StatusOK)

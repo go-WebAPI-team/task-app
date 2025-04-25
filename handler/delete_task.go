@@ -24,7 +24,7 @@ func (dt *DeleteTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	idInt, err := strconv.ParseInt(idStr, 10, 64) //10進数として解釈し、int64 に収める(DBのPK がBIGINT(64bit) のため)
 	if err != nil {
-		RespondJSON(ctx, w, &ErrResponse{Message: "invalid id"}, http.StatusBadRequest)
+		RespondJSON(ctx, w, &ErrResponse{Message: "Invalid task ID format"}, http.StatusBadRequest)
 		return
 	}
 	// TODO: 認証機能実装後にログインユーザーの ID を ctx から取得する
