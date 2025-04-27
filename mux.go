@@ -49,6 +49,12 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 	toggleComplete := &handler.ToggleCompleteTask{Repo: repo, DB: db}
 	mux.Patch("/tasks/{id}/complete", toggleComplete.ServeHTTP)
 
+	addTagToTask := &handler.AddTagToTask{Repo: repo, DB: db,}
+	mux.Put("/tasks/{task_id}/tags/{tag_id}", addTagToTask.ServeHTTP)
+
+	deleteTagFromTask := &handler.DeleteTagFromTask{Repo: repo, DB: db}
+    mux.Delete("/tasks/{task_id}/tags/{tag_id}", deleteTagFromTask.ServeHTTP)
+
 	// 常に使うヘルスチェック
     mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
         w.Header().Set("Content-Type", "application/json; charset=utf-8")
