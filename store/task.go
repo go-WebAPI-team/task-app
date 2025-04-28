@@ -115,13 +115,18 @@ func (r *Repository) DeleteTask(ctx context.Context, db Execer, userID int64, id
 func (r *Repository) ToggleTaskDone(ctx context.Context, db Execer, userID int64, id entity.TaskID) error {
 	const q = `UPDATE tasks SET is_done = NOT is_done, updated_at=? WHERE id=? AND user_id=?`
 	res, err := db.ExecContext(ctx, q, r.Clocker.Now(), id, userID)
-	n, err := res.RowsAffected()
-    if err != nil {
+	if err != nil {
         return err
     }
+
+	n, err := res.RowsAffected()
+	if err != nil {
+        return err
+    }
+    
     if n == 0 {
         // 更新対象の行が無かったら「タスクが見つからない」とみなす
         return ErrTaskNotFound
     }
-	return err
+	return nil
 }
