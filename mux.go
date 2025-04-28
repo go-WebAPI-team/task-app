@@ -24,14 +24,14 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 	mux.Get("/tags", listTag.ServeHTTP)
 
 	deleteTag := &handler.DeleteTag{Repo: repo, DB: db}
-	mux.DELETE("/tags", deleteTag.ServeHTTP)
+	mux.Delete("/tags/{id}", deleteTag.ServeHTTP)
 
 	// Task ハンドラ
 	addTask := &handler.AddTask{Repo: repo, DB: db, Validator: v}
 	mux.Post("/tasks", addTask.ServeHTTP)
 
 	listTask := &handler.ListTask{Repo: repo, DB: db}
-	mux.Get("/tasks", listTag.ServeHTTP)
+	mux.Get("/tasks", listTask.ServeHTTP)
 
 	getTask := &handler.GetTask{Repo: repo, DB: db}
 	mux.Get("/tasks/{id}", getTask.ServeHTTP)

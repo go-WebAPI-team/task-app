@@ -48,6 +48,18 @@ func (r *Repository) ListTags(ctx context.Context, db Queryer) (entity.Tags, err
 	return tags, nil
 }
 
+func (r *Repository) DeleteTag(ctx context.Context, db Execer, userID int64, id entity.TagID) error {
+	res, err := db.ExecContext(ctx, `DELETE FROM tags WHERE id=? AND user_id=?`, id, userID)
+	if err != nil {
+		return err
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return ErrNotFound
+	}
+		
+	return nil
+}
+
 func (r *Repository) AddTagToTask(ctx context.Context, db Execer, userID int64, t *entity.TaskTag) error {
 	now := r.Clocker.Now()
 	const q = `
