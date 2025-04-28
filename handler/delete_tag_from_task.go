@@ -22,7 +22,7 @@ type DeleteTagFromTask struct {
 
 func (dt *DeleteTagFromTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
-    taskIDStr    := chi.URLParam(r, "task_id")
+    taskIDStr := chi.URLParam(r, "task_id")
     tagIDStr := chi.URLParam(r, "tag_id")
 
     taskInt, err := strconv.ParseInt(taskIDStr, 10, 64)

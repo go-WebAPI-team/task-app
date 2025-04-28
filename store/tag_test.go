@@ -75,3 +75,30 @@ func TestTagRepository_CreateTag(t *testing.T) {
 		t.Errorf("ID not set, got %d want %d", newTag.ID, wantID)
 	}
 }
+
+func TestTagRepository_DeleteTag(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
+
+	// 期待: id=5, user_id=1 の行を 1 行削除
+	mock.ExpectExec(`DELETE FROM tags`).
+		WithArgs(int64(5), int64(1)).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	r := &Repository{}
+	if err := r.DeleteTag(ctx, db, 1, entity.TagID(5)); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Fatalf("mock expectations not met: %v", err)
+	}
+}
+
