@@ -92,7 +92,10 @@ func (r *Repository) DeleteTagFromTask(ctx context.Context, db Execer, userID in
     if err != nil {
         return err
     }
-    n, _ := res.RowsAffected()
+    n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
     if n == 0 {
         return ErrNotFound
     }
