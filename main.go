@@ -1,23 +1,17 @@
 package main
 
 import (
-	"TASK-APP/config"
 	"fmt"
 	"net/http"
-	"task-app/handlers"
+	"task-app/handler"
 )
 
 func main() {
 
 	fmt.Println("Starting the server!")
-
-	config.ConnectDB() // ルートとハンドラ関数を定義
-	http.HandleFunc("/tasks", handlers.CreateTask)
-	http.HandleFunc("/tasks", handlers.GetTasks)
-	http.HandleFunc("/tasks/:id", handlers.GetTask)
-	http.HandleFunc("/tasks/:id", handlers.UpdateTask)
-	http.HandleFunc("/tasks/:id", handlers.DeleteTask)
-	http.HandleFunc("/tasks/:id/complete", handlers.ToggleCompleteTask)
+	http.HandleFunc("/login", handler.LoginHandler)
+	http.HandleFunc("/logout", handler.LogoutHandler)
+	http.HandleFunc("/dashboard", handler.DashboardHandler)
 
 	// 8000番ポートでサーバを開始
 	http.ListenAndServe(":8080", nil)
