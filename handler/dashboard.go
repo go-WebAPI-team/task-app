@@ -14,7 +14,6 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// セッションIDを確認
 	sessions.SessionMutex.Lock()
 	authenticated, ok := sessions.Sessions[cookie.Value]
 	if ok {
@@ -28,6 +27,5 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ダッシュボードにアクセス可能
 	w.Write([]byte("Welcome to your dashboard!"))
 }

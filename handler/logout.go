@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"task-app/sessions" // Ensure the sessions package is properly imported
+	"task-app/sessions"
 )
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -14,14 +14,14 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		if len(sessions.Sessions) == 0 {
 			fmt.Println("logoutHandler: current session ID is nothing")
 		}
-		sessions.SessionMutex.Unlock()
-		http.SetCookie(w, &http.Cookie{
-			Name:   "session_id",
-			Value:  "",
-			Path:   "/",
-			MaxAge: -1, // クッキーを削除する設定
-		})
 	}
+	sessions.SessionMutex.Unlock()
+	http.SetCookie(w, &http.Cookie{
+		Name:   "session_id",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1, //cookie削除
+	})
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Logged out successfully"))
 }
