@@ -22,6 +22,17 @@ type AddTask struct {
 	Validator *validator.Validate
 }
 
+// AddTask godoc
+// @Summary      タスクを新規作成
+// @Description  JSON で受け取ったタスク情報を保存します
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        task  body     entity.Task  true  "新規タスク"
+// @Success      200   {object}  handler.IDResponse
+// @Failure      400   {object}  handler.ErrResponse
+// @Failure      500   {object}  handler.ErrResponse
+// @Router       /tasks [post]
 func (at *AddTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -58,5 +69,5 @@ func (at *AddTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Printf("database error: %v", err)
 		return
 	}
-	RespondJSON(ctx, w, struct{ ID int `json:"id"` }{ID: int(t.ID)}, http.StatusOK)
+	RespondJSON(ctx, w, IDResponse{ID: int64(t.ID)}, http.StatusOK)
 }

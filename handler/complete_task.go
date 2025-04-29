@@ -20,6 +20,17 @@ type ToggleCompleteTask struct {
 	DB   store.Execer
 }
 
+// CompleteTask godoc
+// @Summary      タスクを完了状態に更新
+// @Description  タスクの is_done を true に変更します
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        id  path  int  true  "タスクID"
+// @Success      200 {object} handler.EmptyResponse
+// @Failure      400 {object} handler.ErrResponse
+// @Failure      404 {object} handler.ErrResponse
+// @Router       /tasks/{id}/complete [patch]
 func (tc *ToggleCompleteTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")

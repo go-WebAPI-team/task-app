@@ -12,6 +12,12 @@ type ErrResponse struct {
 	Details []string `json:"details,omitempty"`
 }
 
+type IDResponse struct {
+    ID int64 `json:"id" example:"123"`
+}
+
+type EmptyResponse struct{}
+
 // RespondJSONは、各HTTPハンドラーの実装で必要になる、HTTPレスポンスを書き込む共通処理を実装する
 func RespondJSON(ctx context.Context, w http.ResponseWriter, body any, status int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

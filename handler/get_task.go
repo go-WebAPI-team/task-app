@@ -19,6 +19,15 @@ type GetTask struct {
 	DB   store.Queryer
 }
 
+// GetTask godoc
+// @Summary      タスク詳細取得
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        id  path  int  true  "タスクID"
+// @Success      200 {object} entity.Task
+// @Failure      404 {object} handler.ErrResponse
+// @Router       /tasks/{id} [get]
 func (gt *GetTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")

@@ -1,0 +1,373 @@
+definitions:
+  entity.Tag:
+    properties:
+      created_at:
+        example: "2025-04-29T12:00:00Z"
+        type: string
+      id:
+        example: 10
+        type: integer
+      name:
+        example: urgent
+        type: string
+      updated_at:
+        example: "2025-04-30T09:00:00Z"
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    required:
+    - name
+    type: object
+  entity.Task:
+    properties:
+      created:
+        example: "2025-04-10T09:00:00Z"
+        type: string
+      deadline:
+        description: Deadline 期限
+        example: "2025-05-01T12:00:00+09:00"
+        type: string
+      description:
+        description: Description 詳細
+        example: 牛乳を買う
+        type: string
+      id:
+        description: ID タスク識別子
+        example: 1
+        type: integer
+      is_done:
+        description: IsDone 完了フラグ
+        example: false
+        type: boolean
+      priority:
+        description: Priority 優先度 (1:高 2:中 3:低)
+        example: 1
+        type: integer
+      title:
+        description: Title タイトル
+        example: 買い物
+        type: string
+      updated:
+        example: "2025-04-10T09:00:00Z"
+        type: string
+      user_id:
+        description: UserID タスク所有ユーザ
+        example: 2
+        type: integer
+    type: object
+  handler.EmptyResponse:
+    type: object
+  handler.ErrResponse:
+    properties:
+      details:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+    type: object
+  handler.IDResponse:
+    properties:
+      id:
+        example: 123
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /tags:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Tag'
+            type: array
+      summary: タグ一覧取得
+      tags:
+      - tags
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: タグ情報
+        in: body
+        name: tag
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Tag'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.IDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タグを新規作成
+      tags:
+      - tags
+  /tags/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: タグID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.EmptyResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タグを削除
+      tags:
+      - tags
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: ログインユーザのタスクをフィルタ付きで取得します
+      parameters:
+      - description: 完了済みフラグ
+        in: query
+        name: is_done
+        type: boolean
+      - description: タグ ID で絞り込み
+        in: query
+        name: tag_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Task'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タスク一覧取得
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: JSON で受け取ったタスク情報を保存します
+      parameters:
+      - description: 新規タスク
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.IDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タスクを新規作成
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: タスクID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.EmptyResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タスクを削除
+      tags:
+      - tasks
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: タスクID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Task'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タスク詳細取得
+      tags:
+      - tasks
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: タスクID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新フィールド
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.EmptyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タスクを更新
+      tags:
+      - tasks
+  /tasks/{id}/complete:
+    patch:
+      consumes:
+      - application/json
+      description: タスクの is_done を true に変更します
+      parameters:
+      - description: タスクID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.EmptyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タスクを完了状態に更新
+      tags:
+      - tasks
+  /tasks/{id}/tags/{tag_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: タスクID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: タグID
+        in: path
+        name: tag_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.EmptyResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タスクからタグを解除
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: タスク ID とタグ ID を指定して関連づけます
+      parameters:
+      - description: タスクID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: タグID
+        in: path
+        name: tag_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.EmptyResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrResponse'
+      summary: タスクにタグを紐付け
+      tags:
+      - tasks
+swagger: "2.0"

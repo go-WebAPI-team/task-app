@@ -23,6 +23,17 @@ type UpdateTask struct {
 	Validator *validator.Validate
 }
 
+// UpdateTask godoc
+// @Summary      タスクを更新
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        id   path  int         true  "タスクID"
+// @Param        body body  entity.Task true  "更新フィールド"
+// @Success      200 {object} handler.EmptyResponse
+// @Failure      400 {object} handler.ErrResponse
+// @Failure      404 {object} handler.ErrResponse
+// @Router       /tasks/{id} [put]
 func (ut *UpdateTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")

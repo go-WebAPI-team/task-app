@@ -19,6 +19,15 @@ type DeleteTask struct {
 	DB   store.Execer
 }
 
+// DeleteTask godoc
+// @Summary      タスクを削除
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        id  path  int  true  "タスクID"
+// @Success      200 {object} handler.EmptyResponse
+// @Failure      404 {object} handler.ErrResponse
+// @Router       /tasks/{id} [delete]
 func (dt *DeleteTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")

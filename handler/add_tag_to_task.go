@@ -22,6 +22,19 @@ type AddTagToTask struct {
 	// JSONリクエストボディを受け取らないためValidatorは不要
 }
 
+
+// AddTagToTask godoc
+// @Summary      タスクにタグを紐付け
+// @Description  タスク ID とタグ ID を指定して関連づけます
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        id       path     int  true  "タスクID"
+// @Param        tag_id   path     int  true  "タグID"
+// @Success      200 {object} handler.EmptyResponse
+// @Failure      400 {object} handler.ErrResponse
+// @Failure      404 {object} handler.ErrResponse
+// @Router       /tasks/{id}/tags/{tag_id} [post]
 func (at *AddTagToTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	taskIDStr := chi.URLParam(r, "task_id")

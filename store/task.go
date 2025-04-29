@@ -24,7 +24,9 @@ func (r *Repository) AddTask(ctx context.Context, db Execer, t *entity.Task) err
 	if err != nil {
 		return err
 	}
-	t.ID, t.CreatedAt, t.UpdatedAt = entity.TaskID(id), now, now
+	t.ID = entity.TaskID(id)
+	t.CreatedAt = now
+	t.UpdatedAt = now
 	return nil
 }
 

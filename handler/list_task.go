@@ -30,6 +30,17 @@ type TaskDTO struct {
 	Deadline    *time.Time `json:"deadline,omitempty"`
 }
 
+// ListTask godoc
+// @Summary      タスク一覧取得
+// @Description  ログインユーザのタスクをフィルタ付きで取得します
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        is_done  query   bool   false  "完了済みフラグ"
+// @Param        tag_id   query   int    false  "タグ ID で絞り込み"
+// @Success      200  {array}   entity.Task
+// @Failure      400  {object}  handler.ErrResponse
+// @Router       /tasks [get]
 func (lt *ListTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
