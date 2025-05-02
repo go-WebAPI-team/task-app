@@ -29,7 +29,7 @@ func TestLoginHandler(t *testing.T) {
 		}
 	}
 	if !found {
-		t.Errorf("expected sessin_id cookie, but it was not found")
+		t.Errorf("expected session_id cookie, but it was not found")
 	}
 
 }
