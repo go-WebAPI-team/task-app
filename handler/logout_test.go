@@ -31,7 +31,7 @@ func TestLogoutHandler(t *testing.T) {
 		}
 	}
 	if !found {
-		t.Errorf("expected session_id cookie to be marked for delction, but it was not")
+		t.Errorf("expected session_id cookie to be marked for deletion, but it was not")
 	}
 
 	sessions.SessionMutex.Lock()
