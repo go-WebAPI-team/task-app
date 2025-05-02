@@ -8,14 +8,14 @@ import (
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_id")
+	sessions.SessionMutex.Lock()
+	defer sessions.SessionMutex.Unlock()
 	if err == nil {
-		sessions.SessionMutex.Lock()
 		delete(sessions.Sessions, cookie.Value)
 		if len(sessions.Sessions) == 0 {
 			fmt.Println("logoutHandler: current session ID is nothing")
 		}
 	}
-	sessions.SessionMutex.Unlock()
 	http.SetCookie(w, &http.Cookie{
 		Name:   "session_id",
 		Value:  "",
