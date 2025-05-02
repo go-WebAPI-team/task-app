@@ -14,7 +14,7 @@ func TestLoginHandler(t *testing.T) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		t.Errorf("ecepted session_id to have a value, but it was empty")
+		t.Errorf("expected session_id to have a value, but it was empty")
 	}
 
 	cookies := resp.Cookies()
