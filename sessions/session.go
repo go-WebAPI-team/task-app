@@ -39,7 +39,7 @@ func SetCookie(w http.ResponseWriter, sessionID string) {
 		Name:   "session_id",
 		Value:  sessionID,
 		Path:   "/",
-		MaxAge: 60,
+		MaxAge: 600,
 	}
 	http.SetCookie(w, &cookie)
 }
