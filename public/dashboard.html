@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>タスク一覧</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-light bg-white shadow-sm">
+    <div class="container">
+      <span class="navbar-brand mb-0 h1">Task App</span>
+      <button id="logoutBtn" class="btn btn-outline-danger btn-sm">ログアウト</button>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>タスク一覧</h2>
+      <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#taskModal">
+        ＋ 新規タスク
+      </button>
+      <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#tagModal">
+        タグを追加
+      </button>
+    </div>
+
+    <!-- フィルター -->
+    <form id="filterForm" class="row g-3 mb-3">
+      <div class="col-md-4">
+        <select class="form-select" id="tagFilter">
+          <option value="">全タグ</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <select class="form-select" id="isDoneFilter">
+          <option value="">全ステータス</option>
+          <option value="true">完了済み</option>
+          <option value="false">未完了</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-outline-primary w-100" type="submit">フィルター適用</button>
+      </div>
+    </form>
+
+    <!-- タスクリスト -->
+    <ul class="list-group" id="taskList"></ul>
+  </div>
+
+  <!-- --------------- タグ作成モーダル --------------- -->
+  <div class="modal fade" id="tagModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="tagForm">
+          <div class="modal-header">
+            <h5 class="modal-title">タグを追加</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="tagName" class="form-label">タグ名</label>
+              <input type="text" class="form-control" id="tagName" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">追加</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- --------------- タスク作成モーダル（最小実装） --------------- -->
+  <div class="modal fade" id="taskModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="taskForm">
+          <div class="modal-header">
+            <h5 class="modal-title">タスク作成</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="title" class="form-label">タイトル</label>
+              <input type="text" class="form-control" id="title" required>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">説明</label>
+              <textarea class="form-control" id="description"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="deadline" class="form-label">締切</label>
+              <input type="datetime-local" class="form-control" id="deadline">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">タグ</label>
+              <div id="tagCheckboxes" class="ps-2"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- --------------- スクリプト --------------- -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ---- 共通 util ----
+    function alertErr(msg, res) {
+      console.error(res);
+      alert(msg);
+    }
+
+    // ---- ログアウト ----
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await fetch('/logout', { method: 'POST' });
+      window.location.href = '/login.html';
+    });
+
+    // ---- 初回ロード処理 ----
+    window.addEventListener('DOMContentLoaded', () => {
+      loadTags();   // select と checkbox 用
+      loadTasks();  // 一覧
+    });
+
+    // ------------------------------------------------------------------
+    // 1) タグ一覧取得・UI反映
+    // ------------------------------------------------------------------
+    async function loadTags() {
+      try {
+        const res = await fetch('/tags');
+        if (!res.ok) { throw res; }
+        const tags = await res.json();
+
+        const tagFilter = document.getElementById('tagFilter');
+        const tagCheckboxes = document.getElementById('tagCheckboxes');
+        tagFilter.innerHTML = '<option value="">全タグ</option>';
+        tagCheckboxes.innerHTML = '';
+
+        tags.forEach(t => {
+          // select
+          const opt = document.createElement('option');
+          opt.value = t.id;
+          opt.textContent = t.name;
+          tagFilter.appendChild(opt);
+
+          // checkbox
+          const div = document.createElement('div');
+          div.className = 'form-check';
+          div.innerHTML = `
+            <input class="form-check-input" type="checkbox" value="${t.id}" id="tag-${t.id}">
+            <label class="form-check-label" for="tag-${t.id}">${t.name}</label>`;
+          tagCheckboxes.appendChild(div);
+        });
+      } catch (err) {
+        alertErr('タグ取得に失敗しました', err);
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // 2) タグ追加 (モーダル)
+    // ------------------------------------------------------------------
+    document.getElementById('tagForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('tagName').value;
+      try {
+        const res = await fetch('/tags', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        if (!res.ok) { throw res; }
+        await res.json(); // id だけ返る
+        await loadTags(); // UI 再描画
+        bootstrap.Modal.getInstance(document.getElementById('tagModal')).hide();
+        e.target.reset();
+      } catch (err) {
+        alertErr('タグ作成に失敗しました', err);
+      }
+    });
+
+    // ------------------------------------------------------------------
+    // 3) タスク一覧取得
+    // ------------------------------------------------------------------
+    async function loadTasks(params = {}) {
+      const url = new URL('/tasks', location.origin);
+      Object.entries(params).forEach(([k, v]) => { if (v) url.searchParams.set(k, v); });
+      try {
+        const res = await fetch(url);
+        if (!res.ok) { throw res; }
+        const tasks = await res.json();
+        renderTaskList(tasks);
+      } catch (err) {
+        alertErr('タスク取得に失敗しました', err);
+      }
+    }
+
+    function renderTaskList(tasks) {
+      const ul = document.getElementById('taskList');
+      ul.innerHTML = '';
+      tasks.forEach(t => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+          <span>
+            <strong>${t.title}</strong>
+            ${t.is_done ? '<span class="badge bg-success ms-2">完了</span>' : ''}
+          </span>
+          <small>${new Date(t.created_at).toLocaleString()}</small>`;
+        ul.appendChild(li);
+      });
+    }
+
+    // ------------------------------------------------------------------
+    // 4) フィルター
+    // ------------------------------------------------------------------
+    document.getElementById('filterForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const params = {
+        tag_id: document.getElementById('tagFilter').value,
+        is_done: document.getElementById('isDoneFilter').value
+      };
+      loadTasks(params);
+    });
+
+    // ------------------------------------------------------------------
+    // 5) タスク作成 (最小項目のみ送信)
+    // ------------------------------------------------------------------
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const deadline = document.getElementById('deadline').value || null;
+
+      // 選択タグ
+      const tagIds = [...document.querySelectorAll('#tagCheckboxes input:checked')].map(cb => Number(cb.value));
+
+      try {
+        // ① タスク本体を POST /tasks
+        const res = await fetch('/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description, deadline })
+        });
+        if (!res.ok) { throw res; }
+        const { id: taskID } = await res.json();
+
+        // ② 選択タグを紐付け
+        for (const tagID of tagIds) {
+          await fetch(`/tasks/${taskID}/tags/${tagID}`, { method: 'PUT' });
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('taskModal')).hide();
+        e.target.reset();
+        await loadTasks();
+      } catch (err) {
+        alertErr('タスク作成に失敗しました', err);
+      }
+    });
+  </script>
+</body>
+</html>

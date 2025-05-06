@@ -9,6 +9,7 @@ import (
 
     "github.com/go-playground/validator/v10"
 
+    "github.com/go-webapi-team/task-app/auth"
     "github.com/go-webapi-team/task-app/entity"
     "github.com/go-webapi-team/task-app/store"
 
@@ -61,6 +62,9 @@ func TestCreateTag(t *testing.T) {
                 "/tags", 
                 bytes.NewReader(testutil.LoadFile(t, tt.reqFile)),
             )
+
+            // ★認証済みユーザーを Context に注入
+            r = r.WithContext(auth.WithUserID(r.Context(), 1))
 
             // テスト対象となるハンドラ(CreateTag)の用意
             sut := CreateTag{
