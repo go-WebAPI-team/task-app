@@ -31,7 +31,7 @@ type AddTagToTask struct {
 // @Produce      json
 // @Param        id       path     int  true  "タスクID"
 // @Param        tag_id   path     int  true  "タグID"
-// @Success      200 {object} handler.EmptyResponse
+// @Success      200 {object} entity.TaskTag
 // @Failure      400 {object} handler.ErrResponse
 // @Failure      404 {object} handler.ErrResponse
 // @Router       /tasks/{id}/tags/{tag_id} [post]
@@ -70,5 +70,11 @@ func (at *AddTagToTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
 		return
 	}
-	RespondJSON(ctx, w, struct{ ID int64 `json:"id"` }{ID: int64(t.ID)}, http.StatusOK)
+	RespondJSON(ctx, w, &entity.TaskTag{
+		ID:        t.ID,
+		TaskID:    t.TaskID,
+		TagID:     t.TagID,
+		CreatedAt: t.CreatedAt,
+		UpdatedAt: t.UpdatedAt,
+	}, http.StatusOK)
 }
