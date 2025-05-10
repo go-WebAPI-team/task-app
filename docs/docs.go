@@ -403,7 +403,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.EmptyResponse"
+                            "$ref": "#/definitions/entity.TaskTag"
                         }
                     },
                     "400": {
@@ -538,6 +538,31 @@ const docTemplate = `{
                     "description": "UserID タスク所有ユーザ",
                     "type": "integer",
                     "example": 2
+                }
+            }
+        },
+        "entity.TaskTag": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-04-29T12:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "tag_id": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "task_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2025-04-30T09:00:00Z"
                 }
             }
         },
