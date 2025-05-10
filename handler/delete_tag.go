@@ -19,6 +19,15 @@ type DeleteTag struct {
 	DB   store.Execer
 }
 
+// DeleteTag godoc
+// @Summary      タグを削除
+// @Tags         tags
+// @Accept       json
+// @Produce      json
+// @Param        id  path  int  true  "タグID"
+// @Success      200 {object} handler.EmptyResponse
+// @Failure      404 {object} handler.ErrResponse
+// @Router       /tags/{id} [delete]
 func (dt *DeleteTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")

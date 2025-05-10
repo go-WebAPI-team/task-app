@@ -28,6 +28,13 @@ type Tag struct {
     CreatedAt *time.Time `json:"created,omitempty"`
 }
 
+// ListTag godoc
+// @Summary      タグ一覧取得
+// @Tags         tags
+// @Accept       json
+// @Produce      json
+// @Success      200 {array} entity.Tag
+// @Router       /tags [get]
 func (lt *ListTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

@@ -9,6 +9,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
+
+	// Swagger-UI
+    httpSwagger "github.com/swaggo/http-swagger/v2"
+    _ "github.com/go-webapi-team/task-app/docs"
 )
 
 // NewMuxは、どのようなハンドラーの実装をどんなURLパスで公開するかルーティングする
@@ -50,6 +54,11 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 
 	deleteTagFromTask := &handler.DeleteTagFromTask{Repo: repo, DB: db}
     mux.Delete("/tasks/{task_id}/tags/{tag_id}", deleteTagFromTask.ServeHTTP)
+
+	// /swagger/index.html にアクセスするとドキュメントが開く
+    mux.Get("/swagger/*", httpSwagger.Handler(
+        httpSwagger.URL("/swagger/doc.json"), // 生成された spec のパス
+    ))
 
 	// 常に使うヘルスチェック
     mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {

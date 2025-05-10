@@ -22,6 +22,15 @@ type CreateTag struct {
 	Validator *validator.Validate
 }
 
+// CreateTag godoc
+// @Summary      タグを新規作成
+// @Tags         tags
+// @Accept       json
+// @Produce      json
+// @Param        tag  body  entity.Tag  true  "タグ情報"
+// @Success      200 {object} handler.IDResponse
+// @Failure      400 {object} handler.ErrResponse
+// @Router       /tags [post]
 func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
