@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/handler"
 	"github.com/go-webapi-team/task-app/store"
 
@@ -20,52 +21,65 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 	mux := chi.NewRouter()
 	v := validator.New()
 
-	// Tagハンドラ
-	createTag := &handler.CreateTag{Repo: repo, DB: db, Validator: v}
-	mux.Post("/tags", createTag.ServeHTTP)
+	// ------------------------------
+	// 非認証エンドポイント
+	// ------------------------------
+	mux.Post("/login", handler.LoginHandler)
+	mux.Post("/logout", handler.LogoutHandler)
 
-	listTag := &handler.ListTag{Repo: repo, DB: db}
-	mux.Get("/tags", listTag.ServeHTTP)
+	// swagger & health は公開
+	mux.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("/swagger/doc.json"))) // 生成された spec のパス
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write([]byte(`{"status":"ok"}`))
+	})
 
-	deleteTag := &handler.DeleteTag{Repo: repo, DB: db}
-	mux.Delete("/tags/{id}", deleteTag.ServeHTTP)
+	// ------------------------------
+	// 認証必須エンドポイント
+	// ------------------------------
+	mux.Group(func(r chi.Router) {
+		r.Use(auth.Middleware)
 
-	// Task ハンドラ
-	addTask := &handler.AddTask{Repo: repo, DB: db, Validator: v}
-	mux.Post("/tasks", addTask.ServeHTTP)
+		// Tag
+		createTag := &handler.CreateTag{Repo: repo, DB: db, Validator: v}
+		r.Post("/tags", createTag.ServeHTTP)
 
-	listTask := &handler.ListTask{Repo: repo, DB: db}
-	mux.Get("/tasks", listTask.ServeHTTP)
+		listTag := &handler.ListTag{Repo: repo, DB: db}
+		r.Get("/tags", listTag.ServeHTTP)
 
-	getTask := &handler.GetTask{Repo: repo, DB: db}
-	mux.Get("/tasks/{id}", getTask.ServeHTTP)
+		deleteTag := &handler.DeleteTag{Repo: repo, DB: db}
+		r.Delete("/tags/{id}", deleteTag.ServeHTTP)
 
-	updateTask := &handler.UpdateTask{Repo: repo, DB: db, Validator: v}
-	mux.Put("/tasks/{id}", updateTask.ServeHTTP)
+		// Task
+		addTask := &handler.AddTask{Repo: repo, DB: db, Validator: v}
+		r.Post("/tasks", addTask.ServeHTTP)
 
-	deleteTask := &handler.DeleteTask{Repo: repo, DB: db}
-	mux.Delete("/tasks/{id}", deleteTask.ServeHTTP)
+		listTask := &handler.ListTask{Repo: repo, DB: db}
+		r.Get("/tasks", listTask.ServeHTTP)
 
-	toggleComplete := &handler.ToggleCompleteTask{Repo: repo, DB: db}
-	mux.Patch("/tasks/{id}/complete", toggleComplete.ServeHTTP)
+		getTask := &handler.GetTask{Repo: repo, DB: db}
+		r.Get("/tasks/{id}", getTask.ServeHTTP)
 
-	addTagToTask := &handler.AddTagToTask{Repo: repo, DB: db,}
-	mux.Put("/tasks/{task_id}/tags/{tag_id}", addTagToTask.ServeHTTP)
+		updateTask := &handler.UpdateTask{Repo: repo, DB: db, Validator: v}
+		r.Put("/tasks/{id}", updateTask.ServeHTTP)
 
-	deleteTagFromTask := &handler.DeleteTagFromTask{Repo: repo, DB: db}
-    mux.Delete("/tasks/{task_id}/tags/{tag_id}", deleteTagFromTask.ServeHTTP)
+		deleteTask := &handler.DeleteTask{Repo: repo, DB: db}
+		r.Delete("/tasks/{id}", deleteTask.ServeHTTP)
 
-	// /swagger/index.html にアクセスするとドキュメントが開く
-    mux.Get("/swagger/*", httpSwagger.Handler(
-        httpSwagger.URL("/swagger/doc.json"), // 生成された spec のパス
-    ))
+		toggleComplete := &handler.ToggleCompleteTask{Repo: repo, DB: db}
+		r.Patch("/tasks/{id}/complete", toggleComplete.ServeHTTP)
 
-	// 常に使うヘルスチェック
-    mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		// 静的解析(実装予定)のエラーを回避するため明示的に戻り値を捨てる
-        _, _ = w.Write([]byte(`{"status": "ok"}`))
-    })
+		addTagToTask := &handler.AddTagToTask{Repo: repo, DB: db}
+		r.Put("/tasks/{task_id}/tags/{tag_id}", addTagToTask.ServeHTTP)
+
+		deleteTagFromTask := &handler.DeleteTagFromTask{Repo: repo, DB: db}
+		r.Delete("/tasks/{task_id}/tags/{tag_id}", deleteTagFromTask.ServeHTTP)
+	})
+
+	// ------------------------------
+	// 静的ファイル (フロント確認用)
+	// ------------------------------
+	mux.Handle("/*", http.FileServer(http.Dir("./public"))) 
 
 	return mux
 }

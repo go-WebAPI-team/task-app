@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 	"github.com/go-playground/validator/v10"
@@ -34,6 +35,18 @@ type CreateTag struct {
 func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	// ------------------------------
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出  
+	// ------------------------------
+    userID, ok := auth.GetUserID(ctx)
+    if !ok {
+        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+        return
+    }
+
+	// ------------------------------
+	// リクエストパース
+	// ------------------------------
 	var b struct {
 		Name string `json:"name" validate:"required"`
 	}
@@ -49,10 +62,14 @@ func (ct *CreateTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}, http.StatusBadRequest)
 		return
 	}
+
+	// ------------------------------
+	// ビジネスロジック
+	// ------------------------------
 	now := time.Now()
 	t := &entity.Tag{
 		Name:      b.Name,
-		UserID:    1, // TODO: 認証実装後にユーザIDを取得する
+		UserID:    entity.UserID(userID),
 		CreatedAt:  now,
 		UpdatedAt: now,
 	}
