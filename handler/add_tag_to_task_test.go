@@ -7,6 +7,7 @@ import (
     "net/http/httptest"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
@@ -25,6 +26,7 @@ func TestAddTagToTask_Ok(t *testing.T) {
 	rctx.URLParams.Add("task_id", "1")
 	rctx.URLParams.Add("tag_id", "2")
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+	r = r.WithContext(auth.WithUserID(r.Context(), 1))
 
 	sut := AddTagToTask{Repo: &fakeTagAdder{}, DB: nil}
 	sut.ServeHTTP(w, r)

@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
@@ -37,7 +38,14 @@ func (dt *DeleteTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := int64(1) // TODO 認証後に取得
+	// ------------------------------
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出 
+	// ------------------------------
+    userID, ok := auth.GetUserID(ctx)
+    if !ok {
+        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+        return
+    }
 
 	if err := dt.Repo.DeleteTag(ctx, dt.DB, userID, entity.TagID(idInt)); err != nil {
 		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
