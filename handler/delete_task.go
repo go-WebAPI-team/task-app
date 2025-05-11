@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
@@ -36,8 +37,17 @@ func (dt *DeleteTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		RespondJSON(ctx, w, &ErrResponse{Message: "Invalid task ID format"}, http.StatusBadRequest)
 		return
 	}
-	// TODO: 認証機能実装後にログインユーザーの ID を ctx から取得する
-	if err := dt.Repo.DeleteTask(ctx, dt.DB, 1, entity.TaskID(idInt)); err != nil {
+
+	// ------------------------------
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出 
+	// ------------------------------
+    userID, ok := auth.GetUserID(ctx)
+    if !ok {
+        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+        return
+    }
+	
+	if err := dt.Repo.DeleteTask(ctx, dt.DB, userID, entity.TaskID(idInt)); err != nil {
 		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
 		return
 	}

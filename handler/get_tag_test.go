@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 	"github.com/go-webapi-team/task-app/testutil"
@@ -29,6 +30,7 @@ func TestGetTask(t *testing.T) {
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add("id", "1")
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+	r = r.WithContext(auth.WithUserID(r.Context(), 1))
 
 	sut := GetTask{Repo: &fakeTaskGetter{t: task}, DB: nil}
 	sut.ServeHTTP(w, r)

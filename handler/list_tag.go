@@ -5,13 +5,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
 
 // 一覧取得ユースケースのインタフェース
 type TagLister interface {
-	ListTags(ctx context.Context, db store.Queryer) (entity.Tags, error)
+	ListTags(ctx context.Context, db store.Queryer, userID int64) (entity.Tags, error)
 }
 
 type ListTag struct {
@@ -38,7 +39,17 @@ type Tag struct {
 func (lt *ListTag) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	tags, err := lt.Repo.ListTags(ctx, lt.DB)
+	// ------------------------------
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出  
+	// ------------------------------
+    userID, ok := auth.GetUserID(ctx)
+    if !ok {
+        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+        return
+    }
+
+	tags, err := lt.Repo.ListTags(ctx, lt.DB, userID)
+
 	if err != nil {
 		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()},
 			http.StatusInternalServerError)
