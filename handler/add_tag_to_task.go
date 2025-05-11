@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
@@ -51,8 +52,14 @@ func (at *AddTagToTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 認証実装後に ctx から取得
-    userID := int64(1)
+	// ------------------------------
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出  
+	// ------------------------------
+    userID, ok := auth.GetUserID(ctx)
+    if !ok {
+        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+        return
+    }
 
 	now := time.Now()
     t := &entity.TaskTag{
