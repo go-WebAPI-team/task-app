@@ -11,8 +11,8 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	// Cookie があればセッション map から削除
 	if cookie, err := r.Cookie("session_id"); err == nil {
 		sessions.SessionMutex.Lock()
+		defer sessions.SessionMutex.Unlock()
 		delete(sessions.Sessions, cookie.Value)
-		sessions.SessionMutex.Unlock()
 	}
 
 	// 失効 Cookie をセットしてブラウザ側も削除
