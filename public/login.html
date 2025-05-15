@@ -42,13 +42,20 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
       // 今はメール・PW を送ってもサーバでは使わない
-      try {
-        const res = await fetch('/login', { method: 'POST' });
-        if (!res.ok) {
+    try {
+      const res = await fetch('/login', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email,password }),
+      });
+      if (!res.ok) {
           alert('ログイン失敗 (' + res.status + ')');
           return;
-        }
+      }
         window.location.href = '/dashboard.html';
       } catch (err) {
         console.error(err);

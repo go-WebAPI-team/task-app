@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
-	"github.com/go-playground/validator/v10"
 )
 
 type TaskAdder interface {
@@ -56,7 +56,7 @@ func (at *AddTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	t := &entity.Task{
 		// TODO: 認証機能実装後にログインユーザーの ID を ctx から取得する
-		UserID:      1, 
+		UserID:      1,
 		Title:       in.Title,
 		Description: in.Description,
 		Deadline:    in.Deadline,

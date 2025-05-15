@@ -11,12 +11,12 @@ import (
 )
 
 type TaskGetter interface {
-	GetTask(ctx context.Context, db store.Queryer, userID int64, id entity.TaskID) (*entity.Task, error)
+	GetTask(ctx context.Context, db store.Execer, userID int64, id entity.TaskID) (*entity.Task, error)
 }
 
 type GetTask struct {
 	Repo TaskGetter
-	DB   store.Queryer
+	DB   store.Execer
 }
 
 // GetTask godoc

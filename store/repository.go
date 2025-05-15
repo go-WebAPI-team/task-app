@@ -20,7 +20,7 @@ func New(ctx context.Context, cfg *config.Config) (*sql.DB, func() error, error)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&charset=utf8mb4&loc=%s",
 		cfg.DBUser, cfg.DBPass,
 		cfg.DBHost, cfg.DBPort,
-		cfg.DBName,	
+		cfg.DBName,
 		cfg.DBLoc,
 	)
 
@@ -45,13 +45,15 @@ func New(ctx context.Context, cfg *config.Config) (*sql.DB, func() error, error)
 type Repository struct {
 	Clocker clock.Clocker
 }
-
+type Queryer interface {
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
+}
 type Execer interface {
 	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
 }
 
-type Queryer interface {
+type ExecerQueryer interface {
+	Queryer
 	Execer
-	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
-	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }

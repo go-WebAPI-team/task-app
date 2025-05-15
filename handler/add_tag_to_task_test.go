@@ -3,13 +3,14 @@ package handler
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"testing"
-    "net/http/httptest"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
+
 type fakeTagAdder struct{}
 
 func (f *fakeTagAdder) AddTagToTask(_ context.Context, _ store.Execer, _ int64, t *entity.TaskTag) error {

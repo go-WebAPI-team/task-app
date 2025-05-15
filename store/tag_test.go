@@ -101,4 +101,3 @@ func TestTagRepository_DeleteTag(t *testing.T) {
 		t.Fatalf("mock expectations not met: %v", err)
 	}
 }
-

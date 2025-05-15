@@ -8,7 +8,7 @@ import (
 	"github.com/go-webapi-team/task-app/entity"
 )
 
-var ErrTaskNotFound = errors.New("Task not found")
+var ErrTaskNotFound = errors.New("task not found")
 
 func (r *Repository) AddTask(ctx context.Context, db Execer, t *entity.Task) error {
 	const q = `INSERT INTO tasks
@@ -118,17 +118,17 @@ func (r *Repository) ToggleTaskDone(ctx context.Context, db Execer, userID int64
 	const q = `UPDATE tasks SET is_done = NOT is_done, updated_at=? WHERE id=? AND user_id=?`
 	res, err := db.ExecContext(ctx, q, r.Clocker.Now(), id, userID)
 	if err != nil {
-        return err
-    }
+		return err
+	}
 
 	n, err := res.RowsAffected()
 	if err != nil {
-        return err
-    }
-    
-    if n == 0 {
-        // 更新対象の行が無かったら「タスクが見つからない」とみなす
-        return ErrTaskNotFound
-    }
+		return err
+	}
+
+	if n == 0 {
+		// 更新対象の行が無かったら「タスクが見つからない」とみなす
+		return ErrTaskNotFound
+	}
 	return nil
 }
