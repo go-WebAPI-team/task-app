@@ -38,7 +38,7 @@ func TestTagRepository_ListTags(t *testing.T) {
 		WillReturnRows(rows)
 
 	sut := &Repository{Clocker: c}
-	got, err := sut.ListTags(ctx, db)
+	got, err := sut.ListTags(ctx, db, 1)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
