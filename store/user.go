@@ -17,7 +17,7 @@ var (
 
 func (r *Repository) CreateUser(ctx context.Context, db Execer, user *entity.User) error {
 	const q = `INSERT INTO users(name, email, password, created_at, updated_at)
-	VALUES (?,?,?,?)`
+    VALUES (?,?,?,?,?)`
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err

@@ -25,6 +25,7 @@ func (sh *SignupHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var in struct {
+		Name     string `json:"name" validate:"required"`
 		Email    string `json:"email" validate:"required,email"`
 		Password string `json:"password" validate:"required,min=6"`
 	}
@@ -41,12 +42,13 @@ func (sh *SignupHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := &entity.User{
+		Name:     in.Name,
 		Email:    in.Email,
 		Password: in.Password,
 	}
-
 	if err := sh.Repo.CreateUser(ctx, sh.DB, user); err != nil {
-		RespondJSON(ctx, w, &ErrResponse{Message: "Failed to create user"}, http.StatusInternalServerError)
+		//RespondJSON(ctx, w, &ErrResponse{Message: "Failed to create user"}, http.StatusInternalServerError)
+		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
 		log.Printf("database error: %v", err)
 		return
 	}
