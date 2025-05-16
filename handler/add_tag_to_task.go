@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
@@ -30,7 +31,7 @@ type AddTagToTask struct {
 // @Produce      json
 // @Param        id       path     int  true  "タスクID"
 // @Param        tag_id   path     int  true  "タグID"
-// @Success      200 {object} handler.EmptyResponse
+// @Success      200 {object} entity.TaskTag
 // @Failure      400 {object} handler.ErrResponse
 // @Failure      404 {object} handler.ErrResponse
 // @Router       /tasks/{id}/tags/{tag_id} [post]
@@ -50,8 +51,14 @@ func (at *AddTagToTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 認証実装後に ctx から取得
-	userID := int64(1)
+	// ------------------------------
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出
+	// ------------------------------
+	userID, ok := auth.GetUserID(ctx)
+	if !ok {
+		RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+		return
+	}
 
 	now := time.Now()
 	t := &entity.TaskTag{
@@ -69,7 +76,11 @@ func (at *AddTagToTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
 		return
 	}
-	RespondJSON(ctx, w, struct {
-		ID int64 `json:"id"`
-	}{ID: int64(t.ID)}, http.StatusOK)
+	RespondJSON(ctx, w, &entity.TaskTag{
+		ID:        t.ID,
+		TaskID:    t.TaskID,
+		TagID:     t.TagID,
+		CreatedAt: t.CreatedAt,
+		UpdatedAt: t.UpdatedAt,
+	}, http.StatusOK)
 }

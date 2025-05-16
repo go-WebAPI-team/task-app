@@ -45,15 +45,13 @@ func New(ctx context.Context, cfg *config.Config) (*sql.DB, func() error, error)
 type Repository struct {
 	Clocker clock.Clocker
 }
-type Queryer interface {
-	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
-	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
-}
+
 type Execer interface {
 	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
 }
 
-type ExecerQueryer interface {
-	Queryer
+type Queryer interface {
 	Execer
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }

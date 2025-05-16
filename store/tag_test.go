@@ -34,11 +34,13 @@ func TestTagRepository_ListTags(t *testing.T) {
 		AddRow(want[0].ID, want[0].UserID, want[0].Name, want[0].CreatedAt, want[0].UpdatedAt).
 		AddRow(want[1].ID, want[1].UserID, want[1].Name, want[1].CreatedAt, want[1].UpdatedAt)
 
-	mock.ExpectQuery(`SELECT id, user_id, name, created_at, updated_at FROM tags`).
+	mock.ExpectQuery(`SELECT id, user_id, name, created_at, updated_at FROM tags WHERE user_id = \?`).
+		WithArgs(int64(1)).
 		WillReturnRows(rows)
 
 	sut := &Repository{Clocker: c}
 	got, err := sut.ListTags(ctx, db, 1)
+
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

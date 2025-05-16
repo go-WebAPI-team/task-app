@@ -16,10 +16,10 @@ import (
 
 type fakeTaskGetter struct{ t *entity.Task }
 
-func (f *fakeTaskGetter) GetTask(_ context.Context, _ store.Execer, _ int64,
-	_ entity.TaskID) (*entity.Task, error) {
+func (f *fakeTaskGetter) GetTask(_ context.Context, _ store.Queryer, _ int64, _ entity.TaskID) (*entity.Task, error) {
 	return f.t, nil
 }
+
 func TestGetTask(t *testing.T) {
 	now := time.Now()
 	task := &entity.Task{ID: 1, UserID: 1, Title: "task", CreatedAt: now, UpdatedAt: now}

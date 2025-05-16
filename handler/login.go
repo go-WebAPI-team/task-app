@@ -13,12 +13,12 @@ import (
 )
 
 type loginer interface {
-	Login(ctx context.Context, db store.Execer, email, password string) (*entity.User, error)
+	Login(ctx context.Context, db store.Queryer, email, password string) (*entity.User, error)
 }
 
 type LoginHandler struct {
 	Repo      loginer
-	DB        store.Execer
+	DB        store.Queryer // Change from store.Execer to store.Queryer
 	Validator *validator.Validate
 }
 
@@ -30,7 +30,7 @@ func (lh *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ToDo:本来はフォーム値を DB 認証する(後続開発でメール・パスワードを検証 → userID を取得する実装に置換)
-	//const dummyUserID int64 = 1
+	//const dummyUserID int64 = 2
 
 	// セッション生成
 	//sessionID := sessions.NewSession(dummyUserID)

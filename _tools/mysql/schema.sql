@@ -2,6 +2,9 @@
 SET NAMES utf8mb4;
 SET time_zone = '+09:00';
 
+CREATE DATABASE `todo_app`;
+USE `todo_app`;
+
 DROP TABLE IF EXISTS tasks_tags;
 DROP TABLE IF EXISTS tags;
 DROP TABLE IF EXISTS tasks;

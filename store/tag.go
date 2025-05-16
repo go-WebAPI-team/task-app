@@ -27,8 +27,9 @@ func (r *Repository) CreateTag(ctx context.Context, db Execer, t *entity.Tag) er
 }
 
 func (r *Repository) ListTags(ctx context.Context, db Queryer, userID int64) (entity.Tags, error) {
-	const query = `SELECT id, user_id, name, created_at, updated_at FROM tags WHERE user_id = ?`
-	rows, err := db.QueryContext(ctx, query, userID)
+	const sqlStr = `SELECT id, user_id, name, created_at, updated_at FROM tags WHERE user_id = ?`
+
+	rows, err := db.QueryContext(ctx, sqlStr, userID)
 	if err != nil {
 		return nil, err
 	}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
@@ -27,6 +28,7 @@ func TestUpdateTask_Ok(t *testing.T) {
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add("id", "1")
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+	r = r.WithContext(auth.WithUserID(r.Context(), 1))
 
 	sut := UpdateTask{Repo: &fakeTaskUpdater{}, DB: nil, Validator: validator.New()}
 	sut.ServeHTTP(w, r)

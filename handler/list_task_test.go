@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 	"github.com/go-webapi-team/task-app/testutil"
@@ -37,6 +38,7 @@ func TestListTask(t *testing.T) {
 			t.Parallel()
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodGet, "/tasks", nil)
+			r = r.WithContext(auth.WithUserID(r.Context(), 1))
 
 			sut := ListTask{
 				Repo: &fakeTaskLister{ret: tt.tasks},

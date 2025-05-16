@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 	"github.com/go-playground/validator/v10"
@@ -59,10 +60,18 @@ func (ut *UpdateTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ------------------------------
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出  
+	// ------------------------------
+    userID, ok := auth.GetUserID(ctx)
+    if !ok {
+        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+        return
+    }
+
 	t := &entity.Task{
 		ID:          entity.TaskID(idInt),
-		// TODO: 認証機能実装後にログインユーザーの ID を ctx から取得する
-		UserID:      1,
+		UserID:      userID,
 		Title:       in.Title,
 		Description: in.Description,
 		Deadline:    in.Deadline,

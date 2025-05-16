@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 	"github.com/go-webapi-team/task-app/testutil"
@@ -13,7 +14,7 @@ import (
 
 type fakeLister struct{ ret entity.Tags }
 
-func (f *fakeLister) ListTags(_ context.Context, _ store.Queryer) (entity.Tags, error) {
+func (f *fakeLister) ListTags(_ context.Context, _ store.Queryer, _ int64) (entity.Tags, error) {
 	return f.ret, nil
 }
 
@@ -63,6 +64,7 @@ func TestListTag(t *testing.T) {
 				"/tags",
 				nil,
 			)
+			r = r.WithContext(auth.WithUserID(r.Context(), 1))
 
 			// テスト対象となるハンドラ(ListTag)の用意
 			sut := ListTag{

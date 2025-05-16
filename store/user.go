@@ -28,12 +28,12 @@ func (r *Repository) CreateUser(ctx context.Context, db Execer, user *entity.Use
 	return err
 }
 
-func (r *Repository) Login(ctx context.Context, q Queryer, email, password string) (*entity.User, error) {
+func (r *Repository) Login(ctx context.Context, db Queryer, email, password string) (*entity.User, error) {
 	const query = `SELECT id, name, email, password, created_at, updated_at
                    FROM users WHERE email = ?`
 	var u entity.User
 
-	err := q.QueryRowContext(ctx, query, email).Scan(
+	err := db.QueryRowContext(ctx, query, email).Scan(
 		&u.ID, &u.Name, &u.Email, &u.Password, &u.CreatedAt, &u.UpdatedAt,
 	)
 	if err != nil {

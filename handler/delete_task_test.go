@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
@@ -24,6 +25,7 @@ func TestDeleteTask_Ok(t *testing.T) {
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add("id", "1")
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+	r = r.WithContext(auth.WithUserID(r.Context(), 1))
 
 	sut := DeleteTask{Repo: &fakeTaskDeleter{}, DB: nil}
 	sut.ServeHTTP(w, r)

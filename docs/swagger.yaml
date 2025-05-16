@@ -56,6 +56,24 @@ definitions:
         example: 2
         type: integer
     type: object
+  entity.TaskTag:
+    properties:
+      created_at:
+        example: "2025-04-29T12:00:00Z"
+        type: string
+      id:
+        example: 100
+        type: integer
+      tag_id:
+        example: 10
+        type: integer
+      task_id:
+        example: 1
+        type: integer
+      updated_at:
+        example: "2025-04-30T09:00:00Z"
+        type: string
+    type: object
   handler.EmptyResponse:
     type: object
   handler.ErrResponse:
@@ -358,7 +376,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.EmptyResponse'
+            $ref: '#/definitions/entity.TaskTag'
         "400":
           description: Bad Request
           schema:

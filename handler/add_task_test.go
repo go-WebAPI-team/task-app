@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 	"github.com/go-webapi-team/task-app/testutil"
@@ -55,6 +56,7 @@ func TestAddTask(t *testing.T) {
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(http.MethodPost, "/tasks",
 				bytes.NewReader(testutil.LoadFile(t, tt.reqFile)))
+			r = r.WithContext(auth.WithUserID(r.Context(), 1))
 
 			sut := AddTask{
 				Repo:      &fakeAdder{},

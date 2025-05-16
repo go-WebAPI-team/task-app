@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
@@ -77,8 +78,16 @@ func (lt *ListTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO: 認証機能実装後にログインユーザーの ID を ctx から取得する
-	ts, err := lt.Repo.ListTasks(ctx, lt.DB, 1, filter)
+	// ------------------------------
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出  
+	// ------------------------------
+    userID, ok := auth.GetUserID(ctx)
+    if !ok {
+        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+        return
+    }
+
+	ts, err := lt.Repo.ListTasks(ctx, lt.DB, userID, filter)
 	if err != nil {
 		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
 		return

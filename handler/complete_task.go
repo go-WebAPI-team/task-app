@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-webapi-team/task-app/auth"
 	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/store"
 )
@@ -39,8 +40,17 @@ func (tc *ToggleCompleteTask) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		RespondJSON(ctx, w, &ErrResponse{Message: "invalid id"}, http.StatusBadRequest)
 		return
 	}
-	// TODO: 認証機能実装後にログインユーザーの ID を ctx から取得する
-	if err := tc.Repo.ToggleTaskDone(ctx, tc.DB, 1, entity.TaskID(idInt)); err != nil {
+
+	// ------------------------------
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出 
+	// ------------------------------
+    userID, ok := auth.GetUserID(ctx)
+    if !ok {
+        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+        return
+    }
+
+	if err := tc.Repo.ToggleTaskDone(ctx, tc.DB, userID, entity.TaskID(idInt)); err != nil {
 		if errors.Is(err, store.ErrTaskNotFound) {
 			RespondJSON(ctx, w, &ErrResponse{Message: "Task not found"}, http.StatusNotFound)
 		} else {

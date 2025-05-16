@@ -16,7 +16,7 @@ import (
 
 type Loginer struct{}
 
-func (m Loginer) Login(ctx context.Context, execer store.Execer, username, password string) (*entity.User, error) {
+func (m Loginer) Login(ctx context.Context, queryer store.Queryer, username, password string) (*entity.User, error) {
 	return &entity.User{ID: 1, Name: username}, nil
 }
 
