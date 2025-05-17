@@ -235,6 +235,9 @@
       const title = document.getElementById('title').value;
       const description = document.getElementById('description').value;
       const deadline = document.getElementById('deadline').value || null;
+      const priority = document.getElementById('priority').value;
+
+
 
       // 選択タグ
       const tagIds = [...document.querySelectorAll('#tagCheckboxes input:checked')].map(cb => Number(cb.value));
@@ -244,7 +247,7 @@
         const res = await fetch('/tasks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description, deadline })
+          body: JSON.stringify({ title, description, deadline, priority })
         });
         if (!res.ok) { throw res; }
         const { id: taskID } = await res.json();

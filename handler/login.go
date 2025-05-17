@@ -18,7 +18,7 @@ type loginer interface {
 
 type LoginHandler struct {
 	Repo      loginer
-	DB        store.Queryer // Change from store.Execer to store.Queryer
+	DB        store.Queryer
 	Validator *validator.Validate
 }
 
@@ -47,7 +47,7 @@ func (lh *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusBadRequest)
 		return
 	}
-	// Removed unnecessary err check block
+
 	if err := lh.Validator.Struct(in); err != nil {
 		// バリデーションエラーの詳細をレスポンスに含める
 		RespondJSON(ctx, w, &ErrResponse{Message: "Invalid email or password"}, http.StatusBadRequest)
@@ -65,7 +65,5 @@ func (lh *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	sessions.SetCookie(w, sessionID)
 
 	RespondJSON(ctx, w, IDResponse{ID: int64(user.ID)}, http.StatusOK)
-	log.Printf("User %d logged in successfully", user.ID)
 
-	w.Write([]byte("Logged in successfully"))
 }
