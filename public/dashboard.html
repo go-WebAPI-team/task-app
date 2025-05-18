@@ -120,7 +120,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // ---- 共通 util ----
-    function alertErr(msg, res) {
+function alertErr(msg, res) {
   // resがResponseオブジェクトかどうかを厳密に判定
   if (res && typeof res.json === "function") {
     // すでにbodyを読み取っている場合は再度json()できないのでtry-catch
@@ -220,6 +220,10 @@
       }
     }
 
+    //-------------------------------------------------------------------
+    //4) タスク編集
+    //-------------------------------------------------------------------
+    let editingTask = null;
     function renderTaskList(tasks) {
       const ul = document.getElementById('taskList');
       ul.innerHTML = '';
@@ -227,14 +231,53 @@
         const li = document.createElement('li');
         li.className = 'list-group-item d-flex justify-content-between align-items-center';
         li.innerHTML = `
-          <span>
+        <span>
+          <button class="btn btn-link p-0 task-edit-btn" data-task-id="${t.id}">
             <strong>${t.title}</strong>
-            ${t.is_done ? '<span class="badge bg-success ms-2">完了</span>' : ''}
-          </span>
-          <small>${new Date(t.created_at).toLocaleString()}</small>`;
+          </button>
+          ${t.is_done ? '<span class="badge bg-success ms-2">完了</span>' : ''}
+        </span>
+        <small>${new Date(t.created_at).toLocaleString()}</small>`;
         ul.appendChild(li);
       });
+
+      // 編集ボタンにイベントを付与
+      document.querySelectorAll('.task-edit-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = btn.getAttribute('data-task-id');
+          // タスク情報を取得
+          const res = await fetch(`/tasks/${id}`);
+          if (!res.ok) {
+            alert('タスク取得に失敗しました');
+            return;
+          }
+          const task = await res.json();
+          // フォームに値をセット
+          document.getElementById('title').value = task.title;
+          document.getElementById('description').value = task.description;
+          document.getElementById('deadline').value = task.deadline ? task.deadline.slice(0, 16) : '';
+          document.getElementById('priority').value = task.priority;
+          // ...タグのチェックボックスもセット...
+          document.querySelectorAll('#tagCheckboxes input[type=checkbox]').forEach(cb => {
+            cb.checked = (task.tag_ids || []).includes(Number(cb.value));
+          });
+          // 編集中のタスクIDをグローバル変数に保存
+          window.editingTaskId = id;
+          editingTask =task;
+          // モーダルを表示
+          bootstrap.Modal.getOrCreateInstance(document.getElementById('taskModal')).show();
+        });
+      });
     }
+    //-------------------------------------------------------------------
+    //新規作成ボタンを押したときの初期化
+    //-------------------------------------------------------------------
+    document.querySelector('[data-bs-target="#taskModal"]').addEventListener('click', () => {
+      window.editingTaskId = null;
+      editingTask = null;
+      document.getElementById('taskForm').reset();
+      document.querySelectorAll('#tagCheckboxes input[type=checkbox]').forEach(cb => cb.checked = false);  
+    });
 
     // ------------------------------------------------------------------
     // 4) フィルター
@@ -259,6 +302,9 @@
       const deadline = deadlineInput ? new Date(deadlineInput).toISOString() : null;
       const priority = Number(document.getElementById('priority').value);
 
+      const isEdit = !!window.editingTaskId;
+      const url = isEdit ? `/tasks/${window.editingTaskId}` : '/tasks';
+      const method = isEdit ? 'PUT' : 'POST';
 
 
       // 選択タグ
@@ -266,26 +312,42 @@
 
       try {
         // ① タスク本体を POST /tasks
-        const res = await fetch('/tasks', {
-          method: 'POST',
+        const res = await fetch(url, {
+          method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title, description, deadline, priority })
         });
         if (!res.ok) { throw res; }
+
         const { id: taskID } = await res.json();
 
         // ② 選択タグを紐付け
-        for (const tagID of tagIds) {
-          await fetch(`/tasks/${taskID}/tags/${tagID}`, { method: 'PUT' });
-        }
+        // 例: 編集前のtagIds: [1,2,3]、編集後のtagIds: [2,3,4]
+        const beforeTagIds = editingTask.tag_ids || [];
+        const afterTagIds = [...document.querySelectorAll('#tagCheckboxes input:checked')].map(cb => Number(cb.value));
 
+        // 追加するタグ
+        const addTagIds = afterTagIds.filter(id => !beforeTagIds.includes(id));
+        // 削除するタグ
+        const removeTagIds = beforeTagIds.filter(id => !afterTagIds.includes(id));
+
+// 追加
+for (const tagID of addTagIds) {
+  await fetch(`/tasks/${taskID}/tags/${tagID}`, { method: 'PUT' });
+}
+// 削除
+for (const tagID of removeTagIds) {
+  await fetch(`/tasks/${taskID}/tags/${tagID}`, { method: 'DELETE' });
+}
         bootstrap.Modal.getInstance(document.getElementById('taskModal')).hide();
         e.target.reset();
         await loadTasks();
       } catch (err) {
-        alertErr('タスク作成に失敗しました', err);
+          alertErr(isEdit ? 'タスク更新に失敗しました' : 'タスク作成に失敗しました', err);
       }
+
     });
+    
 
   
   </script>
