@@ -66,4 +66,5 @@ func (lh *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	RespondJSON(ctx, w, IDResponse{ID: int64(user.ID)}, http.StatusOK)
 
+	//w.Write([]byte("Logged in successfully"))
 }

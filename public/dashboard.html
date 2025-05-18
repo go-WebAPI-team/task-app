@@ -97,6 +97,16 @@
               <label class="form-label">タグ</label>
               <div id="tagCheckboxes" class="ps-2"></div>
             </div>
+            <!-- タスク作成モーダル内のフォームに priority 入力フィールドを追加 -->
+            <div class="mb-3">
+              <label for="priority" class="form-label">優先度</label>
+              <select class="form-select" id="priority" required>
+                <option value="">選択してください</option>
+                <option value="1">低</option>
+                <option value="2">中</option>
+                <option value="3">高</option>
+              </select>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary">保存</button>
@@ -111,10 +121,21 @@
   <script>
     // ---- 共通 util ----
     function alertErr(msg, res) {
+  // resがResponseオブジェクトかどうかを厳密に判定
+  if (res && typeof res.json === "function") {
+    // すでにbodyを読み取っている場合は再度json()できないのでtry-catch
+    res.json().then(data => {
+      alert(msg + (data && data.message ? "\n" + data.message : ""));
+      console.error(data);
+    }).catch(() => {
+      alert(msg + "\n(詳細情報の取得に失敗しました)");
       console.error(res);
-      alert(msg);
-    }
-
+    });
+  } else {
+    alert(msg + "\n(通信エラーまたは詳細情報なし)");
+    console.error(res);
+  }
+}
     // ---- ログアウト ----
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await fetch('/logout', { method: 'POST' });
@@ -234,8 +255,9 @@
       e.preventDefault();
       const title = document.getElementById('title').value;
       const description = document.getElementById('description').value;
-      const deadline = document.getElementById('deadline').value || null;
-      const priority = document.getElementById('priority').value;
+      const deadlineInput = document.getElementById('deadline').value || null;
+      const deadline = deadlineInput ? new Date(deadlineInput).toISOString() : null;
+      const priority = Number(document.getElementById('priority').value);
 
 
 
@@ -264,6 +286,8 @@
         alertErr('タスク作成に失敗しました', err);
       }
     });
+
+  
   </script>
 </body>
 </html>

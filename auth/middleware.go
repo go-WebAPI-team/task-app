@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/go-webapi-team/task-app/sessions"
@@ -16,11 +17,14 @@ func Middleware(next http.Handler) http.Handler {
 		}
 		sessions.SessionMutex.Lock()
 		uid, ok := sessions.Sessions[cookie.Value]
+		log.Printf("Session Exists: %v, User ID: %v", ok, uid)
 		sessions.SessionMutex.Unlock()
 		if !ok {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
+		log.Printf("Session ID from Cookie: %s", cookie.Value)
+
 		ctx := WithUserID(r.Context(), uid)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

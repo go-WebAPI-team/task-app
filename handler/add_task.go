@@ -32,6 +32,7 @@ type AddTask struct {
 // @Param        task  body     entity.Task  true  "新規タスク"
 // @Success      200   {object}  handler.IDResponse
 // @Failure      400   {object}  handler.ErrResponse
+// @Failure      401   {object}  handler.ErrResponse
 // @Failure      500   {object}  handler.ErrResponse
 // @Router       /tasks [post]
 func (at *AddTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -43,29 +44,30 @@ func (at *AddTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Deadline    *time.Time `json:"deadline"`
 		Priority    int        `json:"priority"    validate:"oneof=1 2 3"`
 	}
+
+	// JSONデコード
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusBadRequest)
 		return
 	}
+
+	// バリデーション
 	if err := at.Validator.Struct(in); err != nil {
-		// バリデーションエラーの詳細をレスポンスに含める
 		msg := err.Error()
 		RespondJSON(ctx, w, &ErrResponse{Message: msg}, http.StatusBadRequest)
 		log.Printf("validation error: %v", err)
 		return
 	}
 
-	// ------------------------------
-	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出
-	// ------------------------------
+	// 認証ユーザーの取得
 	userID, ok := auth.GetUserID(ctx)
 	if !ok {
 		RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
 		return
 	}
 
+	// タスクの作成
 	t := &entity.Task{
-		// TODO: 認証機能実装後にログインユーザーの ID を ctx から取得する
 		UserID:      userID,
 		Title:       in.Title,
 		Description: in.Description,
@@ -74,10 +76,15 @@ func (at *AddTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		IsDone:      false,
 	}
 
+	// データベースへの保存
+
 	if err := at.Repo.AddTask(ctx, at.DB, t); err != nil {
 		RespondJSON(ctx, w, &ErrResponse{Message: "タスクの追加中にエラーが発生しました"}, http.StatusInternalServerError)
 		log.Printf("database error: %v", err)
 		return
 	}
+
+	// 成功レスポンス
 	RespondJSON(ctx, w, IDResponse{ID: int64(t.ID)}, http.StatusOK)
+
 }
