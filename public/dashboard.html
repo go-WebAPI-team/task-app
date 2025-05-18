@@ -107,6 +107,13 @@
                 <option value="3">高</option>
               </select>
             </div>
+            <!-- タスク作成モーダル内フォームのpriorityの下に追加 -->
+            <div class="mb-3">
+              <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="isDone">
+              <label class="form-check-label" for="isDone">完了済みにする</label>
+            </div>
+          </div>
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary">保存</button>
@@ -257,7 +264,7 @@ function alertErr(msg, res) {
           document.getElementById('description').value = task.description;
           document.getElementById('deadline').value = task.deadline ? task.deadline.slice(0, 16) : '';
           document.getElementById('priority').value = task.priority;
-          // ...タグのチェックボックスもセット...
+          document.getElementById('isDone').checked = !!task.is_done;
           document.querySelectorAll('#tagCheckboxes input[type=checkbox]').forEach(cb => {
             cb.checked = (task.tag_ids || []).includes(Number(cb.value));
           });
@@ -301,13 +308,11 @@ function alertErr(msg, res) {
       const deadlineInput = document.getElementById('deadline').value || null;
       const deadline = deadlineInput ? new Date(deadlineInput).toISOString() : null;
       const priority = Number(document.getElementById('priority').value);
-
+      const is_done = document.getElementById('isDone').checked;
       const isEdit = !!window.editingTaskId;
       const url = isEdit ? `/tasks/${window.editingTaskId}` : '/tasks';
       const method = isEdit ? 'PUT' : 'POST';
 
-
-      // 選択タグ
       const tagIds = [...document.querySelectorAll('#tagCheckboxes input:checked')].map(cb => Number(cb.value));
 
       try {
@@ -315,7 +320,7 @@ function alertErr(msg, res) {
         const res = await fetch(url, {
           method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description, deadline, priority })
+          body: JSON.stringify({ title, description, deadline, priority, is_done })
         });
         if (!res.ok) { throw res; }
 
@@ -323,7 +328,7 @@ function alertErr(msg, res) {
 
         // ② 選択タグを紐付け
         // 例: 編集前のtagIds: [1,2,3]、編集後のtagIds: [2,3,4]
-        const beforeTagIds = editingTask.tag_ids || [];
+        const beforeTagIds = editingTask && editingTask.tag_ids ? editingTask.tag_ids : [];
         const afterTagIds = [...document.querySelectorAll('#tagCheckboxes input:checked')].map(cb => Number(cb.value));
 
         // 追加するタグ

@@ -54,8 +54,8 @@ func (at *AddTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// バリデーション
 	if err := at.Validator.Struct(in); err != nil {
 		msg := err.Error()
-		RespondJSON(ctx, w, &ErrResponse{Message: msg}, http.StatusBadRequest)
 		log.Printf("validation error: %v", err)
+		RespondJSON(ctx, w, &ErrResponse{Message: msg}, http.StatusBadRequest)
 		return
 	}
 
