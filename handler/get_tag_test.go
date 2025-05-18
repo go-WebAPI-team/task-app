@@ -20,6 +20,11 @@ func (f *fakeTaskGetter) GetTask(_ context.Context, _ store.Queryer, _ int64, _ 
 	return f.t, nil
 }
 
+// Add the missing method to satisfy TaskGetter interface
+func (f *fakeTaskGetter) ListTagIDsByTaskID(_ context.Context, _ store.Queryer, _ int64) ([]int64, error) {
+	return []int64{}, nil
+}
+
 func TestGetTask(t *testing.T) {
 	now := time.Now()
 	task := &entity.Task{ID: 1, UserID: 1, Title: "task", CreatedAt: now, UpdatedAt: now}

@@ -13,6 +13,7 @@ import (
 
 type TaskGetter interface {
 	GetTask(ctx context.Context, db store.Queryer, userID int64, id entity.TaskID) (*entity.Task, error)
+	ListTagIDsByTaskID(ctx context.Context, db store.Queryer, taskID int64) ([]int64, error)
 }
 
 type GetTask struct {
@@ -50,5 +51,14 @@ func (gt *GetTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusNotFound)
 		return
 	}
-	RespondJSON(ctx, w, t, http.StatusOK)
+	tagIDs, err := gt.Repo.ListTagIDsByTaskID(ctx, gt.DB, int64(t.ID))
+	if err != nil {
+		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
+		return
+	}
+	type taskWithTags struct {
+		*entity.Task
+		TagIDs []int64 `json:"tag_ids"`
+	}
+	RespondJSON(ctx, w, taskWithTags{Task: t, TagIDs: tagIDs}, http.StatusOK)
 }

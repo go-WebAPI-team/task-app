@@ -114,3 +114,19 @@ func (r *Repository) DeleteTagFromTask(ctx context.Context, db Execer, userID in
 	}
 	return nil
 }
+func (r *Repository) ListTagIDsByTaskID(ctx context.Context, db Queryer, taskID int64) ([]int64, error) {
+	rows, err := db.QueryContext(ctx, "SELECT tag_id FROM tasks_tags WHERE task_id=?", taskID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []int64
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
+}

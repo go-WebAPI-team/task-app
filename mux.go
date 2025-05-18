@@ -69,7 +69,7 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 		r.Patch("/tasks/{id}/complete", toggleComplete.ServeHTTP)
 
 		addTagToTask := &handler.AddTagToTask{Repo: repo, DB: db}
-		r.Put("/tasks/{task_id}/tags/{tag_id}", addTagToTask.ServeHTTP)
+		r.Post("/tasks/{task_id}/tags/{tag_id}", addTagToTask.ServeHTTP)
 
 		deleteTagFromTask := &handler.DeleteTagFromTask{Repo: repo, DB: db}
 		r.Delete("/tasks/{task_id}/tags/{tag_id}", deleteTagFromTask.ServeHTTP)

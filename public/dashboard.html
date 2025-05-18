@@ -319,7 +319,7 @@ function alertErr(msg, res) {
         });
         if (!res.ok) { throw res; }
 
-        const { id: taskID } = await res.json();
+        const taskID = isEdit ? window.editingTaskId : (await res.json()).id;
 
         // ② 選択タグを紐付け
         // 例: 編集前のtagIds: [1,2,3]、編集後のtagIds: [2,3,4]
@@ -331,14 +331,14 @@ function alertErr(msg, res) {
         // 削除するタグ
         const removeTagIds = beforeTagIds.filter(id => !afterTagIds.includes(id));
 
-// 追加
-for (const tagID of addTagIds) {
-  await fetch(`/tasks/${taskID}/tags/${tagID}`, { method: 'PUT' });
-}
-// 削除
-for (const tagID of removeTagIds) {
-  await fetch(`/tasks/${taskID}/tags/${tagID}`, { method: 'DELETE' });
-}
+        // 追加
+        for (const tagID of addTagIds) {
+          await fetch(`/tasks/${taskID}/tags/${tagID}`, { method: 'POST' });
+        }
+        // 削除
+        for (const tagID of removeTagIds) {
+          await fetch(`/tasks/${taskID}/tags/${tagID}`, { method: 'DELETE' });
+        }
         bootstrap.Modal.getInstance(document.getElementById('taskModal')).hide();
         e.target.reset();
         await loadTasks();
