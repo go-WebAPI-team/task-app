@@ -57,7 +57,7 @@ func (lh *LoginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	user, err := lh.Repo.Login(ctx, lh.DB, in.Email, in.Password)
 	if err != nil {
-		RespondJSON(ctx, w, &ErrResponse{Message: "err"}, http.StatusInternalServerError)
+		RespondJSON(ctx, w, &ErrResponse{Message: "An internal error occurred. Please try again later."}, http.StatusInternalServerError)
 		log.Printf("database error: %v", err)
 		return
 	}
