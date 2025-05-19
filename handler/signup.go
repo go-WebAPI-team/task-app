@@ -47,8 +47,7 @@ func (sh *SignupHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Password: in.Password,
 	}
 	if err := sh.Repo.CreateUser(ctx, sh.DB, user); err != nil {
-		//RespondJSON(ctx, w, &ErrResponse{Message: "Failed to create user"}, http.StatusInternalServerError)
-		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
+		RespondJSON(ctx, w, &ErrResponse{Message: "Failed to create user"}, http.StatusInternalServerError)
 		log.Printf("database error: %v", err)
 		return
 	}
