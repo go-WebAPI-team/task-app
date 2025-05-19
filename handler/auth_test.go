@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-playground/validator/v10"
@@ -43,7 +44,7 @@ func TestAuthMiddlewareOK(t *testing.T) {
 	defer protectedSrv.Close()
 
 	// --- login
-	resp, err := http.Post(loginSrv.URL, "text/plain", nil)
+	resp, err := http.Post(loginSrv.URL, "application/json", strings.NewReader(`{"email":"test@example.com","password":"testpass"}`))
 	if err != nil {
 		t.Fatalf("login request error: %v", err)
 	}

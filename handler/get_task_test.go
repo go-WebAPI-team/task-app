@@ -27,7 +27,7 @@ func (f *fakeTaskGetter) ListTagIDsByTaskID(_ context.Context, _ store.Queryer, 
 
 func TestGetTask(t *testing.T) {
 	now := time.Now()
-	task := &entity.Task{ID: 1, UserID: 1, Title: "task", CreatedAt: now, UpdatedAt: now}
+	task := &entity.Task{ID: 1, UserID: 1, Title: "task", Priority: 2, CreatedAt: now, UpdatedAt: now}
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/tasks/1", nil)
@@ -40,5 +40,12 @@ func TestGetTask(t *testing.T) {
 	sut.ServeHTTP(w, r)
 
 	testutil.AssertResponse(t, w.Result(), http.StatusOK,
-		testutil.MustJSON(t, task))
+		testutil.MustJSON(t, struct {
+			*entity.Task
+			TagIDs []int64 `json:"tag_ids"`
+		}{
+			Task:   task,
+			TagIDs: []int64{},
+		}),
+	)
 }
