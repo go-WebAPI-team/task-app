@@ -17,7 +17,7 @@ func Middleware(next http.Handler) http.Handler {
 		}
 		sessions.SessionMutex.Lock()
 		uid, ok := sessions.Sessions[cookie.Value]
-		log.Printf("Session Exists: %v, User ID: %v", ok, uid)
+		log.Printf("Session check performed for session ID: %s", cookie.Value)
 		sessions.SessionMutex.Unlock()
 		if !ok {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
