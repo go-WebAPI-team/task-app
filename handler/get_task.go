@@ -48,12 +48,12 @@ func (gt *GetTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	t, err := gt.Repo.GetTask(ctx, gt.DB, userID, entity.TaskID(idInt))
 	if err != nil {
-		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusNotFound)
+		RespondJSON(ctx, w, &ErrResponse{Message: "task not found"}, http.StatusNotFound)
 		return
 	}
 	tagIDs, err := gt.Repo.ListTagIDsByTaskID(ctx, gt.DB, int64(t.ID))
 	if err != nil {
-		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusInternalServerError)
+		RespondJSON(ctx, w, &ErrResponse{Message: "failed to retrieve tags"}, http.StatusInternalServerError)
 		return
 	}
 	type taskWithTags struct {

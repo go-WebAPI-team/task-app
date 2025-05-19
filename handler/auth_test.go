@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -18,6 +19,9 @@ import (
 type Loginer struct{}
 
 func (m Loginer) Login(ctx context.Context, queryer store.Queryer, username, password string) (*entity.User, error) {
+	if username == "error" {
+		return nil, errors.New("login failed")
+	}
 	return &entity.User{ID: 1, Name: username}, nil
 }
 

@@ -22,9 +22,9 @@ func (r *Repository) CreateUser(ctx context.Context, db Execer, user *entity.Use
 	if err != nil {
 		return err
 	}
-	user.Password = string(hashedPassword)
+	hashedPasswordStr := string(hashedPassword)
 	now := time.Now()
-	_, err = db.ExecContext(ctx, q, user.Name, user.Email, user.Password, now, now)
+	_, err = db.ExecContext(ctx, q, user.Name, user.Email, hashedPasswordStr, now, now)
 	return err
 }
 

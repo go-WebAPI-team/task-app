@@ -25,7 +25,7 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 	// 非認証エンドポイント
 	// ------------------------------
 	mux.Post("/login", (&handler.LoginHandler{Repo: repo, DB: db, Validator: v}).ServeHTTP)
-	mux.Post("/logout", handler.LogoutHandler)
+	mux.Post("/logout", (&handler.LogoutHandler{Repo: repo, DB: db, Validator: v}).ServeHTTP)
 	mux.Post("/signup", (&handler.SignupHandler{Repo: repo, DB: db, Validator: v}).ServeHTTP)
 	// swagger & health は公開
 	mux.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("/swagger/doc.json"))) // 生成された spec のパス
