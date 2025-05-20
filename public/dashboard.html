@@ -113,6 +113,12 @@
               <input class="form-check-input" type="checkbox" id="isDone">
               <label class="form-check-label" for="isDone">完了済みにする</label>
             </div>
+            <div class="mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="deleteTask">
+                <label class="form-check-label text-danger" for="deleteTask">このタスクを削除する</label>
+              </div>
+            </div>
           </div>
           </div>
           <div class="modal-footer">
@@ -314,7 +320,22 @@ function alertErr(msg, res) {
       const method = isEdit ? 'PUT' : 'POST';
 
       const tagIds = [...document.querySelectorAll('#tagCheckboxes input:checked')].map(cb => Number(cb.value));
-
+      const deleteChecked = document.getElementById('deleteTask').checked;
+      
+    if (isEdit && deleteChecked) {
+      // タスク削除
+      if (confirm('本当にこのタスクを削除しますか？')) {
+        const res = await fetch(`/tasks/${window.editingTaskId}`, { method: 'DELETE' });
+        if (!res.ok) {
+          alertErr('タスク削除に失敗しました', res);
+          return;
+        }
+        bootstrap.Modal.getInstance(document.getElementById('taskModal')).hide();
+        e.target.reset();
+        await loadTasks();
+      }
+      return;
+    }
       try {
         // ① タスク本体を POST /tasks
         const res = await fetch(url, {
@@ -352,7 +373,18 @@ function alertErr(msg, res) {
       }
 
     });
-    
+    // 編集ボタン押下時
+    document.querySelectorAll('.task-edit-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        document.getElementById('deleteTask').parentElement.style.display = '';
+      });
+    });
+
+    // 新規作成時
+    document.querySelector('[data-bs-target="#taskModal"]').addEventListener('click', () => {
+      document.getElementById('deleteTask').checked = false;
+      document.getElementById('deleteTask').parentElement.style.display = 'none';
+    });
 
   
   </script>
