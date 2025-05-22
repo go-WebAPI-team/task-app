@@ -5,7 +5,7 @@ Task Appは、ユーザー認証付きのタスク管理Webアプリケーショ
 
 ## デモ動画
 
-![demo](demo/demo-taskapp.mp4)
+[demo](demo/demo-taskapp.mp4)
 
 ## 通信構成図
 
