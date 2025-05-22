@@ -152,7 +152,7 @@ function alertErr(msg, res) {
     // ---- ログアウト ----
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await fetch('/logout', { method: 'POST' });
-      window.location.href = '/login.html';
+      window.location.href = '/l';
     });
 
     // ---- 初回ロード処理 ----
