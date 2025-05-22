@@ -12,8 +12,8 @@ import (
 	"github.com/go-playground/validator/v10"
 
 	// Swagger-UI
-    httpSwagger "github.com/swaggo/http-swagger/v2"
-    _ "github.com/go-webapi-team/task-app/docs"
+	_ "github.com/go-webapi-team/task-app/docs"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 // NewMuxは、どのようなハンドラーの実装をどんなURLパスで公開するかルーティングする
@@ -24,16 +24,15 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 	// ------------------------------
 	// 非認証エンドポイント
 	// ------------------------------
-	mux.Post("/login", handler.LoginHandler)
-	mux.Post("/logout", handler.LogoutHandler)
-
+	mux.Post("/login", (&handler.LoginHandler{Repo: repo, DB: db, Validator: v}).ServeHTTP)
+	mux.Post("/logout", (&handler.LogoutHandler{Repo: repo, DB: db, Validator: v}).ServeHTTP)
+	mux.Post("/signup", (&handler.SignupHandler{Repo: repo, DB: db, Validator: v}).ServeHTTP)
 	// swagger & health は公開
 	mux.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL("/swagger/doc.json"))) // 生成された spec のパス
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		_, _ = w.Write([]byte(`{"status":"ok"}`))
 	})
-
 	// ------------------------------
 	// 認証必須エンドポイント
 	// ------------------------------
@@ -70,7 +69,7 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 		r.Patch("/tasks/{id}/complete", toggleComplete.ServeHTTP)
 
 		addTagToTask := &handler.AddTagToTask{Repo: repo, DB: db}
-		r.Put("/tasks/{task_id}/tags/{tag_id}", addTagToTask.ServeHTTP)
+		r.Post("/tasks/{task_id}/tags/{tag_id}", addTagToTask.ServeHTTP)
 
 		deleteTagFromTask := &handler.DeleteTagFromTask{Repo: repo, DB: db}
 		r.Delete("/tasks/{task_id}/tags/{tag_id}", deleteTagFromTask.ServeHTTP)
@@ -79,7 +78,7 @@ func NewMux(db *sql.DB, repo *store.Repository) http.Handler {
 	// ------------------------------
 	// 静的ファイル (フロント確認用)
 	// ------------------------------
-	mux.Handle("/*", http.FileServer(http.Dir("./public"))) 
+	mux.Handle("/*", http.FileServer(http.Dir("./public")))
 
 	return mux
 }

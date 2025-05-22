@@ -20,7 +20,7 @@ func New(ctx context.Context, cfg *config.Config) (*sql.DB, func() error, error)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true&charset=utf8mb4&loc=%s",
 		cfg.DBUser, cfg.DBPass,
 		cfg.DBHost, cfg.DBPort,
-		cfg.DBName,	
+		cfg.DBName,
 		cfg.DBLoc,
 	)
 

@@ -1,19 +1,40 @@
 package handler_test
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/go-webapi-team/task-app/auth"
+	"github.com/go-webapi-team/task-app/entity"
 	"github.com/go-webapi-team/task-app/handler"
 	"github.com/go-webapi-team/task-app/sessions"
+	"github.com/go-webapi-team/task-app/store"
 )
+
+type Loginer struct{}
+
+func (m Loginer) Login(ctx context.Context, queryer store.Queryer, username, password string) (*entity.User, error) {
+	if username == "error" {
+		return nil, errors.New("login failed")
+	}
+	return &entity.User{ID: 1, Name: username}, nil
+}
 
 // TestAuthMiddlewareOK は login → 保護エンドポイントへの一連の流れを確認する
 func TestAuthMiddlewareOK(t *testing.T) {
+	v := validator.New()
+	loginHandler := &handler.LoginHandler{
+		Repo:      Loginer{},
+		DB:        nil,
+		Validator: v,
+	}
 	// 1) login サーバ
-	loginSrv := httptest.NewServer(http.HandlerFunc(handler.LoginHandler))
+	loginSrv := httptest.NewServer(http.HandlerFunc(loginHandler.ServeHTTP))
 	defer loginSrv.Close()
 
 	// 2) protected サーバ
@@ -27,7 +48,7 @@ func TestAuthMiddlewareOK(t *testing.T) {
 	defer protectedSrv.Close()
 
 	// --- login
-	resp, err := http.Post(loginSrv.URL, "text/plain", nil)
+	resp, err := http.Post(loginSrv.URL, "application/json", strings.NewReader(`{"email":"test@example.com","password":"testpass"}`))
 	if err != nil {
 		t.Fatalf("login request error: %v", err)
 	}

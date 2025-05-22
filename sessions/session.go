@@ -1,4 +1,3 @@
-
 package sessions
 
 import (
@@ -39,9 +38,10 @@ func SetCookie(w http.ResponseWriter, sessionID string) {
 		Name:     "session_id",
 		Value:    sessionID,
 		Path:     "/",
-		MaxAge:   600,             // 10 分
+		MaxAge:   600, // 10 分
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
+		//Domain:   "localhost",
 		// Secure: true,           // HTTPS 運用時に有効化
 	}
 	http.SetCookie(w, cookie)

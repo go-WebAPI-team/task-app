@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"errors"
+
 	"github.com/go-webapi-team/task-app/entity"
 )
 
@@ -10,10 +11,10 @@ var ErrNotFound = errors.New("not found")
 
 func (r *Repository) CreateTag(ctx context.Context, db Execer, t *entity.Tag) error {
 	const sqlStr = `INSERT INTO tags (user_id, name, created_at, updated_at) VALUES (?, ?, ?, ?)`
-	
+
 	now := r.Clocker.Now()
 	res, err := db.ExecContext(ctx, sqlStr, t.UserID, t.Name, now, now)
-	
+
 	if err != nil {
 		return err
 	}
@@ -56,7 +57,7 @@ func (r *Repository) DeleteTag(ctx context.Context, db Execer, userID int64, id 
 	if n, _ := res.RowsAffected(); n == 0 {
 		return ErrNotFound
 	}
-		
+
 	return nil
 }
 
@@ -69,19 +70,19 @@ func (r *Repository) AddTagToTask(ctx context.Context, db Execer, userID int64, 
         JOIN tags  AS tg ON tg.id = ?
        WHERE t.id = ? AND t.user_id = ? AND tg.user_id = ?
     `
-    res, err := db.ExecContext(ctx, q,
-        now, now,
-        t.TagID,
-        t.TaskID, userID, userID,
-    )
-    if err != nil {
-        return err
-    }
+	res, err := db.ExecContext(ctx, q,
+		now, now,
+		t.TagID,
+		t.TaskID, userID, userID,
+	)
+	if err != nil {
+		return err
+	}
 
 	n, _ := res.RowsAffected()
-    if n == 0 {
-        return ErrNotFound
-    }
+	if n == 0 {
+		return ErrNotFound
+	}
 
 	id, err := res.LastInsertId()
 	if err != nil {
@@ -92,7 +93,7 @@ func (r *Repository) AddTagToTask(ctx context.Context, db Execer, userID int64, 
 }
 
 func (r *Repository) DeleteTagFromTask(ctx context.Context, db Execer, userID int64, t *entity.TaskTag) error {
-    const q = `
+	const q = `
       DELETE tt
         FROM tasks_tags AS tt
         JOIN tasks AS t  ON tt.task_id = t.id
@@ -100,16 +101,32 @@ func (r *Repository) DeleteTagFromTask(ctx context.Context, db Execer, userID in
        WHERE tt.task_id = ? AND tt.tag_id = ?
          AND t.user_id  = ? AND tg.user_id = ?
     `
-    res, err := db.ExecContext(ctx, q, t.TaskID, t.TagID, userID, userID)
-    if err != nil {
-        return err
-    }
-    n, err := res.RowsAffected()
+	res, err := db.ExecContext(ctx, q, t.TaskID, t.TagID, userID, userID)
 	if err != nil {
 		return err
 	}
-    if n == 0 {
-        return ErrNotFound
-    }
-    return nil
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+func (r *Repository) ListTagIDsByTaskID(ctx context.Context, db Queryer, taskID int64) ([]int64, error) {
+	rows, err := db.QueryContext(ctx, "SELECT tag_id FROM tasks_tags WHERE task_id=?", taskID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []int64
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
 }

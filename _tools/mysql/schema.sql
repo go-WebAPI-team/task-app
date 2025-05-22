@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name         VARCHAR(100)    NOT NULL UNIQUE,
+  email        VARCHAR(255)    NOT NULL UNIQUE,  
   password     CHAR(60)        NOT NULL COMMENT 'bcrypt 60 文字',
   created_at   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -24,8 +25,8 @@ CREATE TABLE tasks (
   title        VARCHAR(255)    NOT NULL,
   description  TEXT,
   deadline     DATETIME,
-  priority     TINYINT         NOT NULL DEFAULT 2 COMMENT '1:Low 2:Normal 3:High',
   is_done      TINYINT(1)      NOT NULL DEFAULT 0,
+  priority     TINYINT         NOT NULL DEFAULT 2,
   created_at   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -63,3 +64,4 @@ CREATE TABLE tasks_tags (
   CONSTRAINT fk_tasks_tags_tag  FOREIGN KEY (tag_id)
     REFERENCES tags(id)  ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+

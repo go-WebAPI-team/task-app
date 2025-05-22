@@ -2,9 +2,9 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strconv"
-	"errors"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -22,7 +22,6 @@ type AddTagToTask struct {
 	DB   store.Execer
 	// JSONリクエストボディを受け取らないためValidatorは不要
 }
-
 
 // AddTagToTask godoc
 // @Summary      タスクにタグを紐付け
@@ -53,21 +52,21 @@ func (at *AddTagToTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ------------------------------
-	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出  
+	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出
 	// ------------------------------
-    userID, ok := auth.GetUserID(ctx)
-    if !ok {
-        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
-        return
-    }
+	userID, ok := auth.GetUserID(ctx)
+	if !ok {
+		RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+		return
+	}
 
 	now := time.Now()
-    t := &entity.TaskTag{
-        TaskID:    entity.TaskID(taskInt),
-        TagID:     entity.TagID(tagInt),
-        CreatedAt: now,
-        UpdatedAt: now,
-    }
+	t := &entity.TaskTag{
+		TaskID:    entity.TaskID(taskInt),
+		TagID:     entity.TagID(tagInt),
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
 
 	if err := at.Repo.AddTagToTask(ctx, at.DB, userID, t); err != nil {
 		if errors.Is(err, store.ErrNotFound) {

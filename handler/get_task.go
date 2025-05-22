@@ -13,6 +13,7 @@ import (
 
 type TaskGetter interface {
 	GetTask(ctx context.Context, db store.Queryer, userID int64, id entity.TaskID) (*entity.Task, error)
+	ListTagIDsByTaskID(ctx context.Context, db store.Queryer, taskID int64) ([]int64, error)
 }
 
 type GetTask struct {
@@ -32,25 +33,32 @@ type GetTask struct {
 func (gt *GetTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	idStr := chi.URLParam(r, "id")
-	idInt, err := strconv.ParseInt(idStr, 10, 64) //10進数として解釈し、int64 に収める(DBのPK がBIGINT(64bit) のため)
+	idInt, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		RespondJSON(ctx, w, &ErrResponse{Message: "invalid id"}, http.StatusBadRequest)
 		return
 	}
-	
-	// ------------------------------
-	// 認証ユーザー取得：認証チェック済み ctx から userID 抽出 
-	// ------------------------------
-    userID, ok := auth.GetUserID(ctx)
-    if !ok {
-        RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
-        return
-    }
+
+	// 認証済みユーザーのIDをctxから取得
+	userID, ok := auth.GetUserID(ctx)
+	if !ok {
+		RespondJSON(ctx, w, &ErrResponse{Message: "unauthorized"}, http.StatusUnauthorized)
+		return
+	}
 
 	t, err := gt.Repo.GetTask(ctx, gt.DB, userID, entity.TaskID(idInt))
 	if err != nil {
-		RespondJSON(ctx, w, &ErrResponse{Message: err.Error()}, http.StatusNotFound)
+		RespondJSON(ctx, w, &ErrResponse{Message: "task not found"}, http.StatusNotFound)
 		return
 	}
-	RespondJSON(ctx, w, t, http.StatusOK)
+	tagIDs, err := gt.Repo.ListTagIDsByTaskID(ctx, gt.DB, int64(t.ID))
+	if err != nil {
+		RespondJSON(ctx, w, &ErrResponse{Message: "failed to retrieve tags"}, http.StatusInternalServerError)
+		return
+	}
+	type taskWithTags struct {
+		*entity.Task
+		TagIDs []int64 `json:"tag_ids"`
+	}
+	RespondJSON(ctx, w, taskWithTags{Task: t, TagIDs: tagIDs}, http.StatusOK)
 }
