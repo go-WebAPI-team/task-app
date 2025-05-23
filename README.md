@@ -47,8 +47,8 @@ Task Appは、ユーザー認証付きのタスク管理Webアプリケーショ
 3. **データベースのセットアップ**  
    MySQL例:
     ```sql
-    CREATE DATABASE `task-app`;
-    USE `task-app`;
+    CREATE DATABASE `taskdb`;
+    USE `taskdb`;
     ```
 
 
